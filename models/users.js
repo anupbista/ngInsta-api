@@ -1,7 +1,8 @@
 const uuid = require('uuid/v4'); // ES5
+const bcrypt = require("bcrypt");
 
 module.exports = (sequelize, type) => {
-    return sequelize.define('user', {
+    const User = sequelize.define('user', {
         id: {
             allowNull: false,
             primaryKey: true,
@@ -9,6 +10,10 @@ module.exports = (sequelize, type) => {
             defaultValue: uuid()
         },
         username: {
+            type: type.STRING,
+            allowNull: false
+        },
+        displayName: {
             type: type.STRING,
             allowNull: false
         },
@@ -25,11 +30,53 @@ module.exports = (sequelize, type) => {
         },
         userImage: {
             type: type.STRING,
+            allowNull: true,
         },
         privateProfile: {
             type: type.BOOLEAN,
             allowNull: false,
             defaultValue: false
-        }
+        },
+        followers: {
+            type: type.INTEGER,
+            defaultValue: 0
+        },
+        following: {
+            type: type.INTEGER,
+            defaultValue: 0
+        },
+        noOfPosts: {
+            type: type.INTEGER,
+            defaultValue: 0
+        },
+        bio: {
+            type: type.STRING,
+            allowNull: true,
+        },
+        website: {
+            type: type.STRING,
+            allowNull: true,
+        },
+        phoneNumber: {
+            type: type.STRING,
+            allowNull: true,
+        },
+        gender:{
+            type: type.STRING,
+            allowNull: true,
+        },
     })
+
+    User.beforeCreate(async (user, options) => {
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(user.password, salt);
+        user.password = passwordHash;
+    })
+
+    User.prototype.isValidPassword = async function(password) {
+        const isValid = await bcrypt.compare(password, this.password)
+        return isValid;
+    }
+
+    return User;
 }

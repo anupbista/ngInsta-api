@@ -1,0 +1,38 @@
+const uuid = require('uuid/v4');
+
+module.exports = (sequelize, type) => {
+    const Post = sequelize.define('post', {
+        id: {
+            allowNull: false,
+            primaryKey: true,
+            type: type.UUID,
+            defaultValue: uuid()
+        },
+        latitude: {
+            type: type.FLOAT,
+            allowNull: true
+        },
+        longitude: {
+            type: type.FLOAT,
+            allowNull: true
+        },
+        postImage: {
+            type: type.STRING,
+            allowNull: false,
+        },
+        caption: {
+            type: type.STRING,
+            allowNull: false,
+        },
+        likesNo: {
+            type: type.INTEGER,
+            defaultValue: 0
+        },
+        commentsNo: {
+            type: type.INTEGER,
+            defaultValue: 0
+        }
+    })
+
+    return Post;
+}

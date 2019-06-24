@@ -2,13 +2,15 @@ const passport = require('passport')
 const JWTStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local').Strategy
 const { ExtractJwt } = require('passport-jwt')
+// const FacebookStrategy = require('passport-facebook').Strategy;
 
 const { JWT_SECRET } = require('../config/config')
 const { User } = require('../db/sequilize')
+// const config = require('../config/config')
 
 // JWT Strategy
 passport.use(new JWTStrategy({
-    jwtFromRequest: ExtractJwt.fromHeader('authorization'),
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: JWT_SECRET
 }, async (payload, done) => {
     try {
@@ -19,11 +21,11 @@ passport.use(new JWTStrategy({
             }
          })
         // if user doesnot exists, handle it
-        if(!user){
+        if(!user[0]){
             return done(null, false)
         }
         // otherwise, return the user
-        done(null, user)
+        done(null, user[0])
     } catch (error) {
         done(error, false)
     }
@@ -41,16 +43,31 @@ passport.use(new LocalStrategy({
             }
          })
         // if user doesnot exists, handle it
-        if(!user){
+        if(!user[0]){
             return done(null, false)
         }
-        // check if password is correct
-
         // if password is not correct, handle it
-        
+        const isValid = await user[0].isValidPassword(password);
+        if(!isValid){
+            return done(null, false);
+        }
         // otherwise, return the user
-        done(null, user)
+        done(null, user[0])
     } catch (error) {
         done(error, false)
     }
 }));
+
+// Facebook Strategy
+// passport.use('facebookStrategy', new FacebookStrategy({
+//     clientID: config.oauth.facebook.clientID,
+//     clientSecret: config.oauth.facebook.clientSecret
+// }, async (accessToken, refreshToken, profile, done) => {
+//     try {
+//         console.log('profile', profile);
+//         console.log('accessToken', accessToken);
+//         console.log('refreshToken', refreshToken);
+//     } catch (error) {
+//         done(error, false, error.message)
+//     }
+// }))
