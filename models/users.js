@@ -68,6 +68,9 @@ module.exports = (sequelize, type) => {
     })
 
     User.beforeCreate(async (user, options) => {
+        let key = uuid();
+        user.dataValues.id = key;
+
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(user.password, salt);
         user.password = passwordHash;

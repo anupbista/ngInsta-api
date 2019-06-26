@@ -18,7 +18,7 @@ module.exports = {
             res.status(200).json(comment.id);
         } catch (error) {
             res.status(500).json({
-                message: error.message
+                message: error
             })
         }
     },

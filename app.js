@@ -20,6 +20,9 @@ app.use('/user', require('./routes/users'));
 // Posts
 app.use('/posts', require('./routes/posts'));
 
+// Posts
+app.use('/alias', require('./routes/alias'));
+
 // Start the server
 const port = process.env.port || 3000;
 app.listen(port, function() {

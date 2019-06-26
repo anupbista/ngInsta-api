@@ -1,23 +1,24 @@
 const uuid = require('uuid/v4');
 
 module.exports = (sequelize, type) => {
-    const Comment = sequelize.define('comment', {
+    const Alias = sequelize.define('alias', {
         id: {
             allowNull: false,
             primaryKey: true,
             type: type.UUID,
             defaultValue: uuid(),
         },
-        commentText: {
-            type: type.STRING,
+        followRequested: {
+            type: type.UUID,
             allowNull: false,
+            defaultValue: false
         }
     })
 
-    Comment.beforeCreate( comment => {
+    Alias.beforeCreate( like => {
         let key = uuid();
-        comment.dataValues.id = key;
+        like.dataValues.id = key;
     });
 
-    return Comment;
+    return Alias;
 }

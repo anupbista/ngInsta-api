@@ -34,5 +34,11 @@ module.exports = (sequelize, type) => {
         }
     })
 
+    Post.beforeCreate( post => {
+        let key = uuid();
+        post.dataValues.id = key;
+    });
+
+
     return Post;
 }
