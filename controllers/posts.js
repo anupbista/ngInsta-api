@@ -1,5 +1,7 @@
-const { Post, Alias, User, Sequelize } = require('../db/sequilize')
+const { Post, Alias, User, Likes, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op
+const path = require('path');
+const { postImageDir } = require('../config/config')
 
 module.exports = {
     getAllPosts: async (req, res) => {
@@ -18,7 +20,7 @@ module.exports = {
                 aliasIds.push(element.aliasId)
             });
             // get posts from followed users
-            let posts = await Post.findAll({ order: [['createdAt', 'DESC']], where: { userId: aliasIds },limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
+            let posts = await Post.findAll({ order: [['createdAt', 'DESC']], where: { userId: aliasIds },limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}}, {model: Likes, attributes: ['userId']} ] });
             res.status(200).json(posts);
         } catch (error) {
             res.status(500).json({
@@ -97,5 +99,8 @@ module.exports = {
                 message: error
             })
         }
+    },
+    getImage: (req, res) => {
+        res.sendFile(path.join(__dirname +"../../"+postImageDir+"/"+req.params.id ));
     }
 }

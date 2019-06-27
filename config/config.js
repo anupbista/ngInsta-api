@@ -9,3 +9,5 @@ module.exports = {
     profileImageDir: 'uploads/profile',
     postImageDir: 'uploads/posts'
 }
+// profileImageDir: '../uploads/profile',
+// postImageDir: '../uploads/posts'

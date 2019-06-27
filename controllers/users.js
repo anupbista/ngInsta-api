@@ -1,5 +1,7 @@
 const { Alias, User, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op;
+const path = require('path');
+const { profileImageDir } = require('../config/config')
 
 module.exports = {
     getProfile: async (req, res) => {        
@@ -107,6 +109,9 @@ module.exports = {
                 message: error.message
             })
         }
+    },
+    getImage: (req, res) => {
+        res.sendFile(path.join(__dirname +"../../"+profileImageDir+"/"+req.params.id ));
     }
 }
 

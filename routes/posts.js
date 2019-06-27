@@ -1,6 +1,7 @@
 const router = require('express-promise-router')();
 const passport = require('passport');
 const multer = require('multer');
+const path = require('path');
 
 const PostsController = require('../controllers/posts.js');
 const CommentsController = require('../controllers/comments.js');
@@ -10,7 +11,7 @@ const { postImageDir } = require('../config/config')
 
 let storage = multer.diskStorage({
     destination: (req, file, cb) => {
-    //   cb(null,  path.join(__dirname, postImageDir));
+      // cb(null,  path.join(__dirname, postImageDir));
       cb(null, postImageDir);
     },
     filename: (req, file, cb) => {
@@ -22,7 +23,7 @@ let storage = multer.diskStorage({
 let upload = multer({storage: storage});
 
 // Posts
-router.route(':userId/page/:page').get(passportJWT, PostsController.getAllPosts);
+router.route('/timeline/:userId/page/:page').get(passportJWT, PostsController.getAllPosts);
 
 router.route('/explore/:page').get(passportJWT, PostsController.getExplorePosts);
 
@@ -44,5 +45,8 @@ router.route('/likes').post(passportJWT, LikesController.addNewLike);
 
 // unlike
 router.route('/unlike').post(passportJWT, LikesController.unLike);
+
+// getImage
+router.route('/image/uploads/posts/:id').get(PostsController.getImage);
 
 module.exports = router;
