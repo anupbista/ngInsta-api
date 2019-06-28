@@ -59,6 +59,32 @@ module.exports = {
             expiresIn:  new Date().setDate( new Date().getDate() + 1 ),
             userId: user.id  
         })
+    },
 
+    signout: async (req, res) => {
+        console.log('UsersController.signout() called');
+        try {
+            const token = req.body.token;
+            // check if user with the email exists
+            const user = await UserToken.findOne({ where: { token: token } })
+            if(!user){
+                return res.status(401).json({message: "Invalid sign."})
+            }
+            await UserToken.destroy({
+                where: { token: token, userId: user.userId }
+            });
+            res.status(200).json({message: "Successfully signout." })
+        } catch (error) {
+            return res.status(500).json({message: error.message })
+        }
+
+
+
+        res.status(200).json({ 
+            token: token,
+            expiresIn:  new Date().setDate( new Date().getDate() + 1 ),
+            userId: user.id  
+        })
     }
+
 }

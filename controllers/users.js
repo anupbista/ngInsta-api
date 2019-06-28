@@ -40,7 +40,10 @@ module.exports = {
             const userId = req.params.userId;
 
             let followedUsers = await Alias.findAll( { attributes: ['aliasId'], where: { aliasId: userId, followRequested: { [Op.ne]: 1} }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
-          
+            for (const user of followedUsers) {
+                const status = await Alias.findOne( { attributes: ['id'], where: { userId: userId, aliasId: user.user.id } } );
+                user.user.setDataValue('status', status)
+            }
             res.status(200).json(followedUsers);
         } catch (error) {
             res.status(500).json({
