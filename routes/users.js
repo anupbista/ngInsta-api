@@ -21,6 +21,8 @@ let storage = multer.diskStorage({
 
 let upload = multer({storage: storage});
 
+// get current user
+router.route('/:token').get(passportJWT, UsersController.getCurrentUser);
 // get profile
 router.route('/profile/:userId').get(passportJWT, UsersController.getProfile);
 // get followers

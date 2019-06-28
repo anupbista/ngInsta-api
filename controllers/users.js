@@ -1,4 +1,4 @@
-const { Alias, User, Sequelize } = require('../db/sequilize')
+const { Alias, User, UserToken, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op;
 const path = require('path');
 const { profileImageDir } = require('../config/config')
@@ -13,6 +13,20 @@ module.exports = {
         } catch (error) {
             res.status(500).json({
                 message: error
+            })
+        }
+    },
+
+    getCurrentUser: async (req, res) => {        
+        console.log('UsersController.getCurrentUser() called');
+        try {
+            const token = req.params.token;
+            const userToken = await UserToken.findOne({ where: { token: token } });
+            const user = await User.findOne({ where: { id: userToken.userId }, attributes: { exclude: ['password', 'phoneNumber']} });
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
             })
         }
     },

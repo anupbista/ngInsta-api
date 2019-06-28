@@ -1,6 +1,6 @@
 const JWT = require('jsonwebtoken');
 
-const { User } = require('../db/sequilize')
+const { User, UserToken } = require('../db/sequilize')
 const { JWT_SECRET } = require('../config/config')
 
 signToken = user => {
@@ -23,11 +23,14 @@ module.exports = {
         // add new user
         
         User.create(req.body)
-        .then(user => {
+        .then(async (user) => {
 
             // create a token for created user
             const token = signToken(user);
-
+            await UserToken.create({
+                userId: user.id,
+                token: token
+            })
             // return a token
             res.status(200).json({ token: token, expiresIn:  new Date().setDate( new Date().getDate() + 1 ), userId: user.id });
         }).catch(err => {
@@ -47,6 +50,10 @@ module.exports = {
         }
 
         const token = signToken(req.user);
+        await UserToken.create({
+            userId: user.id,
+            token: token
+        })
         res.status(200).json({ 
             token: token,
             expiresIn:  new Date().setDate( new Date().getDate() + 1 ),
