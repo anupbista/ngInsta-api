@@ -6,7 +6,7 @@ const { postImageDir } = require('../config/config')
 module.exports = {
     getAllPosts: async (req, res) => {
         try {
-            let limit = 10;
+            let limit = 2;
             let userId = req.params.userId
             let page = req.params.page;
             let data = await Post.findAndCountAll();
@@ -51,16 +51,16 @@ module.exports = {
         try {
             const userId = req.params.id;
             const profile = req.query.profile;
-            let limit = 2;
+            let limit = 9;
             let page = req.params.page;
             let data = await Post.findAndCountAll();
             let pages = Math.ceil(data.count / limit);
-            let offset = limit * (page - 1);
+            let offset = limit * (page - 1);    
             let posts = [];
             if(profile == "true"){
                 posts = await Post.findAll({ where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             }else{
-                posts = await Post.findAll({ where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: 1}}, attributes: { exclude: ['password']}} ] });
+                posts = await Post.findAll({ where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             }
             res.status(200).json(posts);
         } catch (error) {
@@ -74,6 +74,20 @@ module.exports = {
         try {
             const post = await Post.create(req.body);
             res.status(200).json(post.id);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            })
+        }
+    },
+
+    deletePost: async (req, res) => {
+        try {
+            const postId = req.params.id;
+            await Post.destroy({
+                where: { id: postId }
+            });
+            res.status(200).json(true);
         } catch (error) {
             res.status(500).json({
                 message: error.message

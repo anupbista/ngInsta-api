@@ -31,6 +31,8 @@ router.route('/:id/page/:page').get(passportJWT, PostsController.getPostByUserId
 
 router.route('/').post(passportJWT, PostsController.addNewPost);
 
+router.route('/:id').delete(passportJWT, PostsController.deletePost);
+
 router.route('/postimage/:postId').post(passportJWT, upload.single('postImage'), PostsController.savePostPicture);
 
 // Comments

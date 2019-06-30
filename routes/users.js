@@ -21,10 +21,16 @@ let storage = multer.diskStorage({
 
 let upload = multer({storage: storage});
 
-// get current user
-router.route('/:token').get(passportJWT, UsersController.getCurrentUser);
+// search user
+router.route('/search').get(passportJWT, UsersController.searchUser);
+// get current user by token
+router.route('/:token').get(passportJWT, UsersController.getCurrentUserByToken);
+// get user by username
+router.route('/user/:username').get(passportJWT, UsersController.getCurrentUserByUsername);
 // get profile
 router.route('/profile/:userId').get(passportJWT, UsersController.getProfile);
+// get user profile
+router.route('/userprofile/:userId').get(passportJWT, UsersController.getUserProfile);
 // get followers
 router.route('/profile/:userId/followers/:page').get(passportJWT, UsersController.getFollowers);
 // get following
@@ -33,8 +39,6 @@ router.route('/profile/:userId/following/:page').get(passportJWT, UsersControlle
 router.route('/profile/:userId').put(passportJWT, UsersController.saveProfile);
 // save profilePicture
 router.route('/profile/:userId/profileimage').post(passportJWT, upload.single('profileImage'), UsersController.saveProfilePicture);
-// search user
-router.route('/search').get(passportJWT, UsersController.searchUser);
 // getImage
 router.route('/image/uploads/profile/:id').get(UsersController.getImage);
 

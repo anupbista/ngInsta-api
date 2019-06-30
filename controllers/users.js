@@ -17,12 +17,39 @@ module.exports = {
         }
     },
 
-    getCurrentUser: async (req, res) => {        
+    getUserProfile: async (req, res) => {        
+        console.log('UsersController.getUserProfile() called');
+        try {
+            const userId = req.params.userId;
+            const id = req.query.id;
+            const user = await Alias.findOne({ where: { userId: id, aliasId: userId } });
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(500).json({
+                message: error
+            })
+        }
+    },
+
+    getCurrentUserByToken: async (req, res) => {        
         console.log('UsersController.getCurrentUser() called');
         try {
             const token = req.params.token;
             const userToken = await UserToken.findOne({ where: { token: token } });
             const user = await User.findOne({ where: { id: userToken.userId }, attributes: { exclude: ['password', 'phoneNumber']} });
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            })
+        }
+    },
+
+    getCurrentUserByUsername: async (req, res) => {        
+        console.log('UsersController.getCurrentUser() called');
+        try {
+            const username = req.params.username;
+            const user = await User.findOne({ where: { username: username }, attributes: { exclude: ['password', 'phoneNumber']} });
             res.status(200).json(user);
         } catch (error) {
             res.status(500).json({
@@ -41,7 +68,7 @@ module.exports = {
 
             let followedUsers = await Alias.findAll( { attributes: ['aliasId'], where: { aliasId: userId, followRequested: { [Op.ne]: 1} }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             for (const user of followedUsers) {
-                const status = await Alias.findOne( { attributes: ['id'], where: { userId: userId, aliasId: user.user.id } } );
+                const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: userId, aliasId: user.user.id } } );
                 user.user.setDataValue('status', status)
             }
             res.status(200).json(followedUsers);
@@ -52,7 +79,6 @@ module.exports = {
         }
     },
 
-// TODO: get following
     getFollowing: async (req, res) => {        
         console.log('UsersController.getFollowing() called');
         try {
@@ -67,9 +93,12 @@ module.exports = {
             followingUsers.forEach(element => {
                 aliasIds.push(element.aliasId)
             });
-            // get posts from followed users
-            let users = await User.findAll({ where: { id: aliasIds },limit: limit, offset: offset });
 
+            let users = await User.findAll({ where: { id: aliasIds },limit: limit, offset: offset });
+            for (const user of users) {
+                const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: userId, aliasId: user.id } } );
+                user.setDataValue('status', status)
+            }
             res.status(200).json(users);
         } catch (error) {
             res.status(500).json({
@@ -117,9 +146,15 @@ module.exports = {
         console.log('UsersController.profile() called');
         try {
             const searchText = req.query.text;
-            const users = await User.findAll({ attributes: ['username','displayName','userImage',], where: {
-                [Op.or]: [ {username: { [Op.like]: "%"+ searchText +"%" }}, {displayName: { [Op.like]: "%"+ searchText +"%" }} ]
-             }});
+            const limit = 5;
+            let users = []; 
+            if(searchText != ""){
+                users = await User.findAll({ attributes: ['username','displayName','userImage',], where: {
+                    [Op.or]: [ {username: { [Op.like]: "%"+ searchText +"%" }}, {displayName: { [Op.like]: "%"+ searchText +"%" }} ]
+                 }, limit: limit, order: [['updatedAt', 'DESC']] });
+            }else{
+                users = []
+            }
             res.status(200).json(users);
         } catch (error) {
             res.status(500).json({
@@ -127,6 +162,7 @@ module.exports = {
             })
         }
     },
+    
     getImage: (req, res) => {
         res.sendFile(path.join(__dirname +"../../"+profileImageDir+"/"+req.params.id ));
     }

@@ -5,6 +5,7 @@ const CommentModel = require('../models/comments')
 const LikesModel = require('../models/likes')
 const AliasModel = require('../models/alias')
 const UserTokenModel = require('../models/usertoken');
+const NotificationModel = require('../models/notification');
 
 const sequelize = new Sequelize('ngInsta', 'admin-dev', 'admin-dev', {
   host: 'localhost',
@@ -14,7 +15,8 @@ const sequelize = new Sequelize('ngInsta', 'admin-dev', 'admin-dev', {
     min: 0,
     acquire: 30000,
     idle: 10000
-  }
+  },
+  charset: 'utf8mb4'
 })
 
 const User = UserModel(sequelize, Sequelize);
@@ -23,6 +25,7 @@ const Comment = CommentModel(sequelize, Sequelize);
 const Likes  = LikesModel(sequelize, Sequelize);
 const Alias = AliasModel(sequelize, Sequelize);
 const UserToken = UserTokenModel(sequelize, Sequelize);
+const Notification = NotificationModel(sequelize, Sequelize);
 
 User.hasMany(Post, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Post.belongsTo(User, { foreignKey: { allowNull: false } });
@@ -39,6 +42,8 @@ Alias.belongsTo(User, { foreignKey: { allowNull: false } })
 User.hasMany(Alias, { foreignKey: { name: 'aliasId', allowNull: false }, onDelete: 'CASCADE'});
 User.hasMany(UserToken, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 UserToken.belongsTo(User, { foreignKey: { allowNull: false } });
+User.hasMany(Notification, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
+// Notification.belongsTo(User, { foreignKey: { allowNull: false } });
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -46,5 +51,5 @@ sequelize.sync({ force: false })
   })
 
 module.exports = {
-  User, Post, Comment, Likes, Alias, UserToken, Sequelize
+  User, Post, Comment, Likes, Alias, UserToken, Notification, Sequelize
 }

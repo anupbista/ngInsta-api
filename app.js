@@ -8,7 +8,7 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(margan('dev'));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '5mb'}));
 
 // Routes
 // Auth

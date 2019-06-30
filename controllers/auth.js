@@ -16,9 +16,13 @@ module.exports = {
     signUp: async (req, res) => {
         console.log('UsersController.signUp() called');
         // check if user with the email exists
-        const user = await User.findOne({ where: { email: req.body.email } })
+        let user = await User.findOne({ where: { email: req.body.email } })
         if(user){
             return res.status(403).json({message: "User with the email already exists."})
+        }
+        user = await User.findOne({ where: { username: req.body.username } })
+        if(user){
+            return res.status(403).json({message: "User with the username already exists."})
         }
         // add new user
         

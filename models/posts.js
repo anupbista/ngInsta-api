@@ -22,7 +22,7 @@ module.exports = (sequelize, type) => {
         },
         caption: {
             type: type.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         likesNo: {
             type: type.INTEGER,
