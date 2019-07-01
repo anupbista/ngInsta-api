@@ -15,8 +15,7 @@ const sequelize = new Sequelize('ngInsta', 'admin-dev', 'admin-dev', {
     min: 0,
     acquire: 30000,
     idle: 10000
-  },
-  charset: 'utf8mb4'
+  }
 })
 
 const User = UserModel(sequelize, Sequelize);
@@ -43,7 +42,9 @@ User.hasMany(Alias, { foreignKey: { name: 'aliasId', allowNull: false }, onDelet
 User.hasMany(UserToken, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 UserToken.belongsTo(User, { foreignKey: { allowNull: false } });
 User.hasMany(Notification, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
-// Notification.belongsTo(User, { foreignKey: { allowNull: false } });
+Notification.belongsTo(User, { foreignKey: { allowNull: false } });
+Post.hasMany(Notification, { foreignKey: { allowNull: true }, onDelete: 'CASCADE' });
+Notification.belongsTo(Post, { foreignKey: { allowNull: true } });
 
 sequelize.sync({ force: false })
   .then(() => {

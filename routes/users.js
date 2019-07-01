@@ -5,6 +5,7 @@ const path = require('path');
 
 const passportConfig = require('../helpers/passport');
 const UsersController = require('../controllers/users.js');
+const NotificationController = require('../controllers/notification');
 const passportJWT = passport.authenticate('jwt', {session: false});
 const { profileImageDir } = require('../config/config')
 
@@ -41,5 +42,7 @@ router.route('/profile/:userId').put(passportJWT, UsersController.saveProfile);
 router.route('/profile/:userId/profileimage').post(passportJWT, upload.single('profileImage'), UsersController.saveProfilePicture);
 // getImage
 router.route('/image/uploads/profile/:id').get(UsersController.getImage);
+// get Other Notifications
+router.route('/othernotifications/:userId').get(passportJWT, NotificationController.getOtherNotifications);
 
 module.exports = router;

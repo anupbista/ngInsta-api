@@ -8,10 +8,6 @@ module.exports = (sequelize, type) => {
             type: type.UUID,
             defaultValue: uuid(),
         },
-        content: {
-            type: type.STRING,
-            allowNull: true,
-        },
         status: {
             type: type.BOOLEAN,
             allowNull: false,
@@ -28,6 +24,24 @@ module.exports = (sequelize, type) => {
                 model: 'users',
                 key: 'id'
             }
+        },
+        aliasId: {
+            allowNull: false,
+            type: type.UUID,
+            references: {
+                model: 'users',
+                key: 'id'
+            }
+        },
+        createdAt: {
+            allowNull: false,
+            type: type.DATE,
+            defaultValue: type.literal('CURRENT_TIMESTAMP')
+        },
+        updatedAt: {
+            allowNull: false,
+            type: type.DATE,
+            defaultValue: type.literal('CURRENT_TIMESTAMP')
         }
     })
 
