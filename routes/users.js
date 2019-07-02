@@ -44,5 +44,7 @@ router.route('/profile/:userId/profileimage').post(passportJWT, upload.single('p
 router.route('/image/uploads/profile/:id').get(UsersController.getImage);
 // get Other Notifications
 router.route('/othernotifications/:userId').get(passportJWT, NotificationController.getOtherNotifications);
+// get Follow Notifications
+router.route('/follownotifications/:userId').get(passportJWT, NotificationController.getFollowNotifications);
 
 module.exports = router;

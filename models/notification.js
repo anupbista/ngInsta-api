@@ -6,7 +6,6 @@ module.exports = (sequelize, type) => {
             allowNull: false,
             primaryKey: true,
             type: type.UUID,
-            defaultValue: uuid(),
         },
         status: {
             type: type.BOOLEAN,
@@ -15,7 +14,7 @@ module.exports = (sequelize, type) => {
         },
         type: {
             type: type.STRING,
-            allowNull: false,
+            allowNull: false,       
         },
         userId: {
             allowNull: false,

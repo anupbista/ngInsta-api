@@ -1,7 +1,7 @@
 const { Alias, User, UserToken, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op;
 const path = require('path');
-const { profileImageDir } = require('../config/config')
+const { profileImageDir, defaultImageDir } = require('../config/config')
 
 module.exports = {
     getProfile: async (req, res) => {        

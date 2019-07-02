@@ -1,4 +1,4 @@
-const { Post, Alias, User, Likes, Sequelize } = require('../db/sequilize')
+const { Post, Alias, User, Likes, Comment, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op
 const path = require('path');
 const { postImageDir } = require('../config/config')
@@ -63,6 +63,21 @@ module.exports = {
                 posts = await Post.findAll({ where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             }
             res.status(200).json(posts);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            })
+        }
+    },
+
+    getPostByPostId: async (req, res) => {
+        try {
+            const postId = req.params.postId;
+            
+            let post = await Post.findOne({ where: { id: postId }, include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage'] }, {model: Likes, attributes: ['userId', 'createdAt'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ]}, { model: Comment, attributes: ['userId', 'createdAt', 'commentText'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ] } ] });
+          
+            res.status(200).json(post);
+
         } catch (error) {
             res.status(500).json({
                 message: error.message

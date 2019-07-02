@@ -17,6 +17,7 @@ module.exports = {
             }
             res.status(200).json(true);
         } catch (error) {
+            console.log(error)
             res.status(500).json({
                 message: error.message
             })
@@ -37,4 +38,17 @@ module.exports = {
             })
         }
     },
+
+    approveFollow: async (req, res) => {
+        try {
+            let userId = req.body.userId;
+            let aliasId = req.body.aliasId;
+            await Alias.update( { followRequested: 0 }, { where: {userId: userId, aliasId: aliasId}, returning: true, plain: true})
+            res.status(200).json(true);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            })
+        }
+    }
 }

@@ -31,7 +31,7 @@ module.exports = (sequelize, type) => {
         userImage: {
             type: type.STRING,
             allowNull: true,
-            defaultValue: "uploads/defaults/default-user.png"
+            defaultValue: "uploads/profile/default-user.png"
         },
         privateProfile: {
             type: type.BOOLEAN,

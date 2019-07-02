@@ -10,4 +10,6 @@ router.route('/follow').post(passportJWT, AliasController.follow);
 
 router.route('/unFollow').post(passportJWT, AliasController.unFollow);
 
+router.route('/approvefollow').put(passportJWT, AliasController.approveFollow);
+
 module.exports = router;

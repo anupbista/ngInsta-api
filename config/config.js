@@ -7,7 +7,8 @@ module.exports = {
         }
     },
     profileImageDir: 'uploads/profile',
-    postImageDir: 'uploads/posts'
+    postImageDir: 'uploads/posts',
+    defaultImageDir: 'uploads/defaults'
 }
 // profileImageDir: '../uploads/profile',
 // postImageDir: '../uploads/posts'

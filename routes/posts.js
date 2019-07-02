@@ -29,6 +29,8 @@ router.route('/explore/:page').get(passportJWT, PostsController.getExplorePosts)
 
 router.route('/:id/page/:page').get(passportJWT, PostsController.getPostByUserId);
 
+router.route('/:postId').get(passportJWT, PostsController.getPostByPostId);
+
 router.route('/').post(passportJWT, PostsController.addNewPost);
 
 router.route('/:id').delete(passportJWT, PostsController.deletePost);
