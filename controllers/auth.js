@@ -72,7 +72,7 @@ module.exports = {
             // check if user with the email exists
             const user = await UserToken.findOne({ where: { token: token } })
             if(!user){
-                return res.status(401).json({message: "Invalid sign."})
+                return res.status(401).json({message: "Invalid user"})
             }
             await UserToken.destroy({
                 where: { token: token, userId: user.userId }
@@ -82,13 +82,11 @@ module.exports = {
             return res.status(500).json({message: error.message })
         }
 
-
-
-        res.status(200).json({ 
-            token: token,
-            expiresIn:  new Date().setDate( new Date().getDate() + 1 ),
-            userId: user.id  
-        })
+        // res.status(200).json({ 
+        //     token: token,
+        //     expiresIn:  new Date().setDate( new Date().getDate() + 1 ),
+        //     userId: user.id  
+        // })
     }
 
 }

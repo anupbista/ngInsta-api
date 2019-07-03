@@ -31,6 +31,7 @@ module.exports = {
 
     getExplorePosts: async (req, res) => {
         try {
+            const userId = req.params.userId;
             let limit = 20;
             let page = req.params.page;
             let data = await Post.findAndCountAll();
@@ -38,7 +39,13 @@ module.exports = {
             let offset = limit * (page - 1);
 
             // get posts from followed users
-            let posts = await Post.findAll({ order: [ Sequelize.fn( 'RAND' )], limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: 1}}, attributes: { exclude: ['password']}} ] });
+            let posts = await Post.findAll({ order: [ Sequelize.fn( 'RAND' )], where: { userId: { [Op.ne]: userId}}, limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: 1}}, attributes: ['username', 'id']} ] });
+
+            // for (const post of posts) {
+            //     const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: userId, aliasId: post.user.id } } );
+            //     post.setDataValue('status', status)
+            // }
+
             res.status(200).json(posts);
         } catch (error) {
             res.status(500).json({
@@ -58,9 +65,9 @@ module.exports = {
             let offset = limit * (page - 1);    
             let posts = [];
             if(profile == "true"){
-                posts = await Post.findAll({ where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
+                posts = await Post.findAll({ order: [['createdAt', 'DESC']], where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             }else{
-                posts = await Post.findAll({ where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
+                posts = await Post.findAll({ order: [['createdAt', 'DESC']], where: { userId: userId }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             }
             res.status(200).json(posts);
         } catch (error) {
@@ -74,7 +81,7 @@ module.exports = {
         try {
             const postId = req.params.postId;
             
-            let post = await Post.findOne({ where: { id: postId }, include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage'] }, {model: Likes, attributes: ['userId', 'createdAt'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ]}, { model: Comment, attributes: ['userId', 'createdAt', 'commentText'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ] } ] });
+            let post = await Post.findOne({ order:[ [{model: Comment}, "createdAt", "ASC"] ], where: { id: postId }, include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage'] }, {model: Likes, attributes: ['userId', 'createdAt'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ]}, { model: Comment, attributes: ['userId', 'createdAt', 'commentText'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ] } ] });
           
             res.status(200).json(post);
 
@@ -129,7 +136,51 @@ module.exports = {
             })
         }
     },
+
     getImage: (req, res) => {
         res.sendFile(path.join(__dirname +"../../"+postImageDir+"/"+req.params.id ));
+    },
+
+    getAllSavedPosts: async (req, res) => {
+        try {
+            const postId = req.params.id;
+            const userId = req.params.userId;
+            const likes = await Likes.findAll( { where: { postId }, include: [{model: User, attributes: [ 'id', 'username', 'displayName', 'userImage' ]}]});
+            for (const like of likes) {
+                const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: like.userId, aliasId: userId } } );   
+                like.setDataValue('status', status);
+            }
+            res.status(200).json(likes);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            })
+        }
+    },
+
+    addToSavedPosts: async (req, res) => {
+        try {
+            const like = await Likes.create(req.body);
+            res.status(200).json(like.id);
+        } catch (error) {
+            res.status(500).json({
+                message: error
+            })
+        }
+    },
+
+    unSavePost: async (req, res) => {
+        try {
+            let userId = req.body.userId;
+            let postId = req.body.postId;
+            await Likes.destroy({
+                where: { userId: userId, postId: postId }
+            });
+            res.status(200).json(true);
+        } catch (error) {
+            res.status(500).json({
+                message: error
+            })
+        }
     }
 }

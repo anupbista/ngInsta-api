@@ -1,15 +1,20 @@
-const { Likes, User } = require('../db/sequilize')
+const { Likes, User, Alias } = require('../db/sequilize')
 
 module.exports = {
     getAllLikes: async (req, res) => {
         try {
             const postId = req.params.id;
-            const likes = await Likes.findAll( { where: { postId }, include: [{model: User, attributes: { exclude: ['password']}}]});
-            const allLikes = [];
-            likes.forEach( like => {
-                allLikes.push(likesDTO(like.user));
-            });
-            res.status(200).json(allLikes);
+            const userId = req.params.userId;
+            const likes = await Likes.findAll( { where: { postId }, include: [{model: User, attributes: [ 'id', 'username', 'displayName', 'userImage' ]}]});
+            // const allLikes = [];
+            // likes.forEach( like => {
+            //     allLikes.push(likesDTO(like.user));
+            // });
+            for (const like of likes) {
+                const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: like.userId, aliasId: userId } } );   
+                like.setDataValue('status', status);
+            }
+            res.status(200).json(likes);
         } catch (error) {
             res.status(500).json({
                 message: error.message

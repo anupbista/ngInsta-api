@@ -25,7 +25,7 @@ let upload = multer({storage: storage});
 // Posts
 router.route('/timeline/:userId/page/:page').get(passportJWT, PostsController.getAllPosts);
 
-router.route('/explore/:page').get(passportJWT, PostsController.getExplorePosts);
+router.route('/explore/:userId/:page').get(passportJWT, PostsController.getExplorePosts);
 
 router.route('/:id/page/:page').get(passportJWT, PostsController.getPostByUserId);
 
@@ -43,12 +43,20 @@ router.route('/:id/comments').get(passportJWT, CommentsController.getAllComments
 router.route('/comments').post(passportJWT, CommentsController.addNewComment);
 
 // Likes
-router.route('/:id/likes').get(passportJWT, LikesController.getAllLikes);
+router.route('/:id/likes/:userId').get(passportJWT, LikesController.getAllLikes);
 
 router.route('/likes').post(passportJWT, LikesController.addNewLike);
 
 // unlike
 router.route('/unlike').post(passportJWT, LikesController.unLike);
+
+// Saved Posts
+router.route('/:id/saved/:userId').get(passportJWT, PostsController.getAllSavedPosts);
+
+router.route('/saved').post(passportJWT, PostsController.addToSavedPosts);
+
+// unsave post
+router.route('/unsave').post(passportJWT, PostsController.unSavePost);
 
 // getImage
 router.route('/image/uploads/posts/:id').get(PostsController.getImage);

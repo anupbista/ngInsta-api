@@ -165,6 +165,31 @@ module.exports = {
     
     getImage: (req, res) => {
         res.sendFile(path.join(__dirname +"../../"+profileImageDir+"/"+req.params.id ));
+    },
+
+    getUserSuggestions: async (req, res) => {
+        try {
+            const userId = req.params.userId;
+            let limit = 3;
+            let suggestions = await User.findAll({ order: [ Sequelize.fn( 'RAND' )], where: { id: { [Op.ne]: userId}}});
+            let tempSuggestion = suggestions.slice();
+            for (let index = 0; index < tempSuggestion.length; index++) {
+                const follow = await Alias.findOne({
+                    where: { userId: userId, aliasId: tempSuggestion[index].id  }
+                });
+                if(follow){
+                    let index = tempSuggestion.findIndex( i => {
+                        return i.id === follow.aliasId;
+                    });
+                   suggestions.splice(index, 1);
+                }
+            }
+            res.status(200).json(suggestions);
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            })
+        }
     }
 }
 

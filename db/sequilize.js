@@ -6,6 +6,7 @@ const LikesModel = require('../models/likes')
 const AliasModel = require('../models/alias')
 const UserTokenModel = require('../models/usertoken');
 const NotificationModel = require('../models/notification');
+const SavePostsModel = require('../models/saved');
 
 const sequelize = new Sequelize('ngInsta', 'admin-dev', 'admin-dev', {
   host: 'localhost',
@@ -25,22 +26,33 @@ const Likes  = LikesModel(sequelize, Sequelize);
 const Alias = AliasModel(sequelize, Sequelize);
 const UserToken = UserTokenModel(sequelize, Sequelize);
 const Notification = NotificationModel(sequelize, Sequelize);
+const SavedPosts = SavePostsModel(sequelize, Sequelize);
 
 User.hasMany(Post, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Post.belongsTo(User, { foreignKey: { allowNull: false } });
+
 User.hasMany(Comment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 Comment.belongsTo(Post, { foreignKey: { allowNull: false } });
 Comment.belongsTo(User, { foreignKey: { allowNull: false } });
 Post.hasMany(Comment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
+
 User.hasMany(Likes, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 Likes.belongsTo(User, { foreignKey: { allowNull: false } });
 Post.hasMany(Likes, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 Likes.belongsTo(Post, { foreignKey: { allowNull: false } });
+
+User.hasMany(SavedPosts, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
+SavedPosts.belongsTo(User, { foreignKey: { allowNull: false } });
+Post.hasMany(SavedPosts, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
+SavedPosts.belongsTo(Post, { foreignKey: { allowNull: false } });
+
 User.hasMany(Alias, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 Alias.belongsTo(User, { foreignKey: { allowNull: false } })
 User.hasMany(Alias, { foreignKey: { name: 'aliasId', allowNull: false }, onDelete: 'CASCADE'});
+
 User.hasMany(UserToken, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
 UserToken.belongsTo(User, { foreignKey: { allowNull: false } });
+
 User.hasMany(Notification, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Notification.belongsTo(User, { foreignKey: { allowNull: false } });
 Post.hasMany(Notification, { foreignKey: { allowNull: true }, onDelete: 'CASCADE' });
