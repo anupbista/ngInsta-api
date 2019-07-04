@@ -1,4 +1,4 @@
-const { Post, Alias, User, Likes, Comment, Sequelize } = require('../db/sequilize')
+const { Post, Alias, User, Likes, Comment, SavedPosts, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op
 const path = require('path');
 const { postImageDir } = require('../config/config')
@@ -6,7 +6,7 @@ const { postImageDir } = require('../config/config')
 module.exports = {
     getAllPosts: async (req, res) => {
         try {
-            let limit = 2;
+            let limit = 10;
             let userId = req.params.userId
             let page = req.params.page;
             let data = await Post.findAndCountAll();
@@ -20,7 +20,7 @@ module.exports = {
                 aliasIds.push(element.aliasId)
             });
             // get posts from followed users
-            let posts = await Post.findAll({ order: [['createdAt', 'DESC']], where: { userId: aliasIds },limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}}, {model: Likes, attributes: ['userId']} ] });
+            let posts = await Post.findAll({ order: [['createdAt', 'DESC']], where: { userId: aliasIds },limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}}, {model: Likes, attributes: ['userId']}, { model: SavedPosts, attributes: ['userId'] } ] });
             res.status(200).json(posts);
         } catch (error) {
             res.status(500).json({
@@ -38,13 +38,20 @@ module.exports = {
             let pages = Math.ceil(data.count / limit);
             let offset = limit * (page - 1);
 
-            // get posts from followed users
-            let posts = await Post.findAll({ order: [ Sequelize.fn( 'RAND' )], where: { userId: { [Op.ne]: userId}}, limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: 1}}, attributes: ['username', 'id']} ] });
+            let posts = await Post.findAll({ where: { userId: { [Op.ne]: userId}}, limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: 1}}, attributes: ['username', 'id']} ] });
 
-            // for (const post of posts) {
-            //     const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: userId, aliasId: post.user.id } } );
-            //     post.setDataValue('status', status)
-            // }
+            let tempPosts = posts.slice();
+            for (let index = 0; index < tempPosts.length; index++) {
+                const follow = await Alias.findOne({
+                    where: { userId: userId, aliasId: tempPosts[index].userId  }
+                });
+                if(follow){
+                    let index = posts.findIndex( i => {
+                        return i.userId === follow.aliasId;
+                    });
+                    posts.splice(index, 1);
+                }
+            }
 
             res.status(200).json(posts);
         } catch (error) {
@@ -81,7 +88,7 @@ module.exports = {
         try {
             const postId = req.params.postId;
             
-            let post = await Post.findOne({ order:[ [{model: Comment}, "createdAt", "ASC"] ], where: { id: postId }, include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage'] }, {model: Likes, attributes: ['userId', 'createdAt'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ]}, { model: Comment, attributes: ['userId', 'createdAt', 'commentText'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ] } ] });
+            let post = await Post.findOne({ order:[ [{model: Comment}, "createdAt", "ASC"] ], where: { id: postId }, include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage'] }, {model: Likes, attributes: ['userId', 'createdAt'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ]}, { model: Comment, attributes: ['userId', 'createdAt', 'commentText'], include: [ {model: User, attributes: ['id','username', 'displayName', 'userImage']} ] }, { model: SavedPosts, attributes: ['userId'] } ] });
           
             res.status(200).json(post);
 
@@ -141,16 +148,14 @@ module.exports = {
         res.sendFile(path.join(__dirname +"../../"+postImageDir+"/"+req.params.id ));
     },
 
-    getAllSavedPosts: async (req, res) => {
+    getAllSavedPostsByUserId: async (req, res) => {
         try {
-            const postId = req.params.id;
             const userId = req.params.userId;
-            const likes = await Likes.findAll( { where: { postId }, include: [{model: User, attributes: [ 'id', 'username', 'displayName', 'userImage' ]}]});
-            for (const like of likes) {
-                const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: like.userId, aliasId: userId } } );   
-                like.setDataValue('status', status);
-            }
-            res.status(200).json(likes);
+            let limit = 9;
+            let page = req.params.page;
+            let offset = limit * (page - 1);
+            let posts = await SavedPosts.findAll({ order: [['createdAt', 'DESC']], where: { userId: userId }, limit: limit, offset: offset, include: [ {model: Post } ] });
+            res.status(200).json(posts);
         } catch (error) {
             res.status(500).json({
                 message: error.message
@@ -160,8 +165,8 @@ module.exports = {
 
     addToSavedPosts: async (req, res) => {
         try {
-            const like = await Likes.create(req.body);
-            res.status(200).json(like.id);
+            const savePost = await SavedPosts.create(req.body);
+            res.status(200).json(savePost.id);
         } catch (error) {
             res.status(500).json({
                 message: error
@@ -173,7 +178,7 @@ module.exports = {
         try {
             let userId = req.body.userId;
             let postId = req.body.postId;
-            await Likes.destroy({
+            await SavedPosts.destroy({
                 where: { userId: userId, postId: postId }
             });
             res.status(200).json(true);

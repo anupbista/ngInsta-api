@@ -171,14 +171,14 @@ module.exports = {
         try {
             const userId = req.params.userId;
             let limit = 3;
-            let suggestions = await User.findAll({ order: [ Sequelize.fn( 'RAND' )], where: { id: { [Op.ne]: userId}}});
+            let suggestions = await User.findAll({ order: [ Sequelize.fn( 'RAND' )], limit: limit, where: { id: { [Op.ne]: userId}}});
             let tempSuggestion = suggestions.slice();
             for (let index = 0; index < tempSuggestion.length; index++) {
                 const follow = await Alias.findOne({
                     where: { userId: userId, aliasId: tempSuggestion[index].id  }
                 });
                 if(follow){
-                    let index = tempSuggestion.findIndex( i => {
+                    let index = suggestions.findIndex( i => {
                         return i.id === follow.aliasId;
                     });
                    suggestions.splice(index, 1);

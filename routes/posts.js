@@ -51,7 +51,7 @@ router.route('/likes').post(passportJWT, LikesController.addNewLike);
 router.route('/unlike').post(passportJWT, LikesController.unLike);
 
 // Saved Posts
-router.route('/:id/saved/:userId').get(passportJWT, PostsController.getAllSavedPosts);
+router.route('/saved/:userId/:page').get(passportJWT, PostsController.getAllSavedPostsByUserId);
 
 router.route('/saved').post(passportJWT, PostsController.addToSavedPosts);
 

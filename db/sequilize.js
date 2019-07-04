@@ -64,5 +64,5 @@ sequelize.sync({ force: false })
   })
 
 module.exports = {
-  User, Post, Comment, Likes, Alias, UserToken, Notification, Sequelize
+  User, Post, Comment, Likes, Alias, UserToken, Notification, SavedPosts, Sequelize
 }
