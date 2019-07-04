@@ -37,7 +37,7 @@ module.exports = {
             })
             // return a token
             res.status(200).json({ token: token, expiresIn:  new Date().setDate( new Date().getDate() + 1 ), userId: user.id });
-        }).catch(err => {
+        }).catch(error => {
             res.status(500).json({
                 message: error.message
             })

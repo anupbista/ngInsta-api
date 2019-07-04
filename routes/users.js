@@ -46,6 +46,8 @@ router.route('/image/uploads/profile/:id').get(UsersController.getImage);
 router.route('/othernotifications/:userId/:page').get(passportJWT, NotificationController.getOtherNotifications);
 // get Follow Notifications
 router.route('/follownotifications/:userId').get(passportJWT, NotificationController.getFollowNotifications);
+// update notifications
+router.route('/notification').put(passportJWT, UsersController.updateNotification);
 // user suggestions
 router.route('/suggestions/:userId').get(passportJWT, UsersController.getUserSuggestions);
 

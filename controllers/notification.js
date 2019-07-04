@@ -8,7 +8,7 @@ module.exports = {
             let page = req.params.page;
             let offset = limit * (page - 1);
             const userId = req.params.userId;
-            const otherNotifications = await Notification.findAll( { limit: limit, offset: offset, where: { aliasId: userId, type: { [Op.like]: "other-%" } }, include: [{model: User, attributes: { exclude: ['password']}}, {model: Post}]});
+            const otherNotifications = await Notification.findAll( {  order: [['createdAt', 'DESC']], limit: limit, offset: offset, where: { aliasId: userId, type: { [Op.like]: "other-%" } }, include: [{model: User, attributes: { exclude: ['password']}}, {model: Post}]});
             res.status(200).json(otherNotifications);
         } catch (error) {
             res.status(500).json({
@@ -20,7 +20,7 @@ module.exports = {
     getFollowNotifications: async (req, res) => {
         try {
             const userId = req.params.userId;
-            const followNotifications = await Notification.findAll( { where: { aliasId: userId, type: { [Op.like]: "follow%" }  }, include: [{model: User, attributes: { exclude: ['password']}}]});
+            const followNotifications = await Notification.findAll( {  order: [['createdAt', 'DESC']], where: { aliasId: userId, type: { [Op.like]: "follow%" }  }, include: [{model: User, attributes: { exclude: ['password']}}]});
             res.status(200).json(followNotifications);
         } catch (error) {
             res.status(500).json({

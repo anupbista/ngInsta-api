@@ -1,4 +1,4 @@
-const { Alias, User, UserToken, Sequelize } = require('../db/sequilize')
+const { Alias, User, UserToken, Notification, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op;
 const path = require('path');
 const { profileImageDir, defaultImageDir } = require('../config/config')
@@ -35,8 +35,8 @@ module.exports = {
         console.log('UsersController.getCurrentUser() called');
         try {
             const token = req.params.token;
-            const userToken = await UserToken.findOne({ where: { token: token } });
-            const user = await User.findOne({ where: { id: userToken.userId }, attributes: { exclude: ['password', 'phoneNumber']} });
+            const userToken = await UserToken.findAll({ where: { token: token } });
+            const user = await User.findOne({ where: { id: userToken[0].userId }, attributes: { exclude: ['password', 'phoneNumber']} });
             res.status(200).json(user);
         } catch (error) {
             res.status(500).json({
@@ -190,7 +190,21 @@ module.exports = {
                 message: error.message
             })
         }
-    }
+    },
+
+    updateNotification: async (req, res) => {        
+        try {
+            const ids = req.body.ids;
+            await Notification.update({
+                status: true
+            }, { where: {id: ids}, returning: true, plain: true})
+            res.status(200).json(ids);
+        } catch (error) {
+            res.status(500).json({
+                message: error
+            })
+        }
+    },
 }
 
 function userDTO(user){
