@@ -1,0 +1,1429 @@
+{
+	"info": {
+		"_postman_id": "9eb50edc-855c-46a8-ac63-22a9b34949ba",
+		"name": "ngInsta",
+		"description": "An API Collection for ngInsta.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "singUp",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\n\t\"email\": \"messi@gmail.com\",\n\t\"password\": \"messi\",\t\n\t\"username\": \"messi\",\n\t\"displayName\": \"Lional Messi\"\n\t\n}"
+								},
+								"url": {
+									"raw": "{{url}}/auth/signUp",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"auth",
+										"signUp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "signIn",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiMDg3Y2ZlMGQtNGY1NC00NTM2LTg5NGUtODRiZWM0MTQ1MDM3IiwiaWF0IjoxNTYxMjczNTI2MjMxLCJleHAiOjE1NjEzNTk5MjYyMzF9.VvyiSn5OYVzlJhbnVs7f9wSDMFFvY59Il3mRD6SGy54",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"email\": \"bistaanup77@gmail.com\",\n\t\"password\": \"admin\"\t\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/auth/signIn",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"auth",
+										"signIn"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getAllPosts",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/timeline/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/page/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"timeline",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										"page",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getExplorePosts",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/explore/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"explore",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getPostById",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/969d94c9-69a5-4757-807a-1e57f6e516e1/page/1?profile=false",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"969d94c9-69a5-4757-807a-1e57f6e516e1",
+										"page",
+										"1"
+									],
+									"query": [
+										{
+											"key": "profile",
+											"value": "false"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getPostByPostId",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/71f901fe-e21e-40bd-a9e8-cd04beab188f",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"71f901fe-e21e-40bd-a9e8-cd04beab188f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getImage",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/image/uploads/posts/94be1f24-fe88-4171-8647-aeae875161e7-1561601031308.jpg?",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"image",
+										"uploads",
+										"posts",
+										"94be1f24-fe88-4171-8647-aeae875161e7-1561601031308.jpg"
+									],
+									"query": [
+										{
+											"key": "profile",
+											"value": "true",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "addNewPost",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"latitude\": null,\n\t\"longitide\": null,\n\t\"caption\": \"Out of Copa America. Next TIme.\",\n\t\"userId\": \"7afe83a4-58e9-4fb8-8135-2db88224caba\",\n\t\"postImage\": \"\"\t\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "DELETE",
+					"item": [
+						{
+							"name": "deletePost",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/8c187fb9-317c-4a3f-922e-1f6b3969ce41",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"8c187fb9-317c-4a3f-922e-1f6b3969ce41"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "POST Image",
+					"item": [
+						{
+							"name": "uploadPostImage",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json",
+										"disabled": true
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "postImage",
+											"type": "file",
+											"src": ""
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/postimage/8c187fb9-317c-4a3f-922e-1f6b3969ce41",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"postimage",
+										"8c187fb9-317c-4a3f-922e-1f6b3969ce41"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "867771da-51a4-4ff1-941c-801be13d4d8f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7962556f-6627-4bd2-a74e-9c0a82ecbcc6",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Comment",
+			"item": [
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getCommentByPostId",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/92f1cf40-98e1-483f-91f3-d0faf965da5e/comments",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"92f1cf40-98e1-483f-91f3-d0faf965da5e",
+										"comments"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "addNewComment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"commentText\": \"Every day man. Everyday.\",\n\t\"userId\": \"969d94c9-69a5-4757-807a-1e57f6e516e1\",\n\t\"postId\": \"c2d2706d-f6c5-4c9d-b410-ebfb7daad4ec\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/comments",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"comments"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Likes",
+			"item": [
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "addNewLike",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"969d94c9-69a5-4757-807a-1e57f6e516e1\",\n\t\"postId\": \"c2d2706d-f6c5-4c9d-b410-ebfb7daad4ec\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/likes",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"likes"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "DELETE",
+					"item": [
+						{
+							"name": "unLike",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"8d4fdc8f-d393-498b-a078-08fc304c6c9c\",\n\t\"postId\": \"9448d2d6-de4a-4e21-86dc-2d8803742cb0\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/unlike",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"unlike"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getLikesByPostId",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/c2d2706d-f6c5-4c9d-b410-ebfb7daad4ec/likes/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"c2d2706d-f6c5-4c9d-b410-ebfb7daad4ec",
+										"likes",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Saved",
+			"item": [
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "addSavePost",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3\",\n\t\"postId\": \"71f901fe-e21e-40bd-a9e8-cd04beab188f\"\n}\t"
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/saved",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"saved"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "DELETE",
+					"item": [
+						{
+							"name": "unSavePost",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"8d4fdc8f-d393-498b-a078-08fc304c6c9c\",\n\t\"postId\": \"9448d2d6-de4a-4e21-86dc-2d8803742cb0\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/unsave",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"unsave"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getSavedPostByUserId",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/posts/saved/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"posts",
+										"saved",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getProfile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/profile/8d4fdc8f-d393-498b-a078-08fc304c6c9c",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"profile",
+										"8d4fdc8f-d393-498b-a078-08fc304c6c9c"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getUserProfile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/userprofile/8d4fdc8f-d393-498b-a078-08fc304c6c9c?id=1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"userprofile",
+										"8d4fdc8f-d393-498b-a078-08fc304c6c9c"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getCurrentUser",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/user/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiMWE0ZjVhY2ItOWQyMS00NzIzLWJmYjAtZmUyZWVhODRjOWQzIiwiaWF0IjoxNTYxNjU1MTQzNDY2LCJleHAiOjE1NjE3NDE1NDM0NjZ9.gp-YLbbIpnWGjt9Gf2pCsySqy7ZeXLgVH7KsqoS0Ltc",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"user",
+										"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiMWE0ZjVhY2ItOWQyMS00NzIzLWJmYjAtZmUyZWVhODRjOWQzIiwiaWF0IjoxNTYxNjU1MTQzNDY2LCJleHAiOjE1NjE3NDE1NDM0NjZ9.gp-YLbbIpnWGjt9Gf2pCsySqy7ZeXLgVH7KsqoS0Ltc"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getFollowers",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/profile/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/followers/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"profile",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										"followers",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "searchUser",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/search?text=",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"search"
+									],
+									"query": [
+										{
+											"key": "text",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getFollowing",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/profile/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/following/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"profile",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										"following",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getUserSuggestions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/suggestions/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"suggestions",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "PUT",
+					"item": [
+						{
+							"name": "updateProfile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3\",\n    \"username\": \"anupbista\",\n    \"email\": \"bistaanup77@gmail.com\",\n    \"userImage\": null,\n    \"privateProfile\": true,\n    \"displayName\": \"Anup Bista\",\n    \"bio\": null,\n    \"website\": null,\n    \"gender\": null,\n    \"phoneNumber\": null,\n    \"noOfPosts\": 0,\n    \"followers\": 0,\n    \"following\": 0\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/profile/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"profile",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "POST Image",
+					"item": [
+						{
+							"name": "uploadProfileImage",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "profileImage",
+											"type": "file",
+											"src": ""
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/profile/969d94c9-69a5-4757-807a-1e57f6e516e1/profileimage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"profile",
+										"969d94c9-69a5-4757-807a-1e57f6e516e1",
+										"profileimage"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Alias",
+			"item": [
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getProfile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/profile/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"profile",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "follow",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": \"969d94c9-69a5-4757-807a-1e57f6e516e1\",\n    \"aliasId\": \"8d4fdc8f-d393-498b-a078-08fc304c6c9c\"\n}"
+								},
+								"url": {
+									"raw": "{{url}}/alias/follow",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"alias",
+										"follow"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "DELETE",
+					"item": [
+						{
+							"name": "unFollow",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": \"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3\",\n    \"aliasId\": \"969d94c9-69a5-4757-807a-1e57f6e516e1\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/alias/unfollow",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"alias",
+										"unfollow"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "getOtherNotifications",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/othernotifications/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"othernotifications",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getFollowNotifications",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/follownotifications/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"follownotifications",
+										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "PUT",
+					"item": [
+						{
+							"name": "updateNotification",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"ids\": [\"a2f154e8-9e10-11e9-bbb6-448a5b901424\", \"a1be9112-9e10-11e9-bbb6-448a5b901424\"]\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/user/notification",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"user",
+										"notification"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		}
+	]
+}
