@@ -24,7 +24,7 @@ app.use('/posts', require('./routes/posts'));
 app.use('/alias', require('./routes/alias'));
 
 // Start the server
-const port = process.env.port || 3000;
+const port = process.env.port || 8080;
 app.listen(port, function() {
     console.log(`Sever listening at ${port}`);
 } )
