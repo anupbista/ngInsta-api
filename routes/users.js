@@ -50,5 +50,7 @@ router.route('/follownotifications/:userId').get(passportJWT, NotificationContro
 router.route('/notification').put(passportJWT, UsersController.updateNotification);
 // user suggestions
 router.route('/suggestions/:userId').get(passportJWT, UsersController.getUserSuggestions);
+// addPushSubscriber
+router.route('/addPushSubscriber/:userId').put(passportJWT, UsersController.addPushSubscriber);
 
 module.exports = router;

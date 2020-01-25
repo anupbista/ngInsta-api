@@ -4,7 +4,8 @@
   "description": "An API for ngInsta",
   "main": "app.js",
   "scripts": {
-    "start-dev": "nodemon app.js"
+    "start-dev": "nodemon app.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,7 @@
   },
   "homepage": "https://github.com/anupbista/ngInsta-api#readme",
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^3.0.7",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -31,6 +32,10 @@
     "passport-facebook": "^3.0.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
-    "sequelize": "^5.8.12"
+    "pg": "^7.12.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.8.12",
+    "socket.io": "^2.3.0",
+    "web-push": "^3.3.5"
   }
 }

@@ -66,7 +66,12 @@ module.exports = (sequelize, type) => {
             type: type.STRING,
             allowNull: true,
         },
+        notification_subs:{
+            type: type.STRING,
+            allowNull: true,
+        },
     })
+    
 
     User.beforeCreate(async (user, options) => {
         let key = uuid();

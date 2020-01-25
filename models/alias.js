@@ -6,18 +6,18 @@ module.exports = (sequelize, type) => {
             allowNull: false,
             primaryKey: true,
             type: type.UUID,
-            defaultValue: uuid(),
+            defaultValue: uuid()
         },
         followRequested: {
-            type: type.UUID,
+            type: type.BOOLEAN,
             allowNull: false,
             defaultValue: false
         }
     })
 
-    Alias.beforeCreate( like => {
+    Alias.beforeCreate( alias => {
         let key = uuid();
-        like.dataValues.id = key;
+        alias.dataValues.id = key;
     });
 
     return Alias;

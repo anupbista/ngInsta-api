@@ -14,7 +14,7 @@ module.exports = {
             let offset = limit * (page - 1);
 
             // select followed user only
-            let followedUsers = await Alias.findAll( { attributes: ['aliasId'], where: { userId: userId, followRequested: { [Op.ne]: 1} } });
+            let followedUsers = await Alias.findAll( { attributes: ['aliasId'], where: { userId: userId, followRequested: { [Op.ne]: true} } });
             let aliasIds = [];
             followedUsers.forEach(element => {
                 aliasIds.push(element.aliasId)
@@ -38,7 +38,7 @@ module.exports = {
             let pages = Math.ceil(data.count / limit);
             let offset = limit * (page - 1);
 
-            let posts = await Post.findAll({ where: { userId: { [Op.ne]: userId}}, limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: 1}}, attributes: ['username', 'id']} ] });
+            let posts = await Post.findAll({ where: { userId: { [Op.ne]: userId}}, limit: limit, offset: offset, include: [ {model: User, where: { privateProfile: { [Op.ne]: true}}, attributes: ['username', 'id']} ] });
 
             let tempPosts = posts.slice();
             for (let index = 0; index < tempPosts.length; index++) {

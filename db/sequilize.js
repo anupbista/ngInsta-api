@@ -8,14 +8,17 @@ const UserTokenModel = require('../models/usertoken');
 const NotificationModel = require('../models/notification');
 const SavePostsModel = require('../models/saved');
 
-const sequelize = new Sequelize('ngInsta', 'admin-dev', 'admin-dev', {
-  host: 'localhost',
-  dialect: 'mysql',
+const sequelize = new Sequelize(process.env.DATABASE_URL || "postgres://pqowldxanqdxnu:7fb0636bb0ae86dd50c791f9fcd2ede669471d1ceca89ed01300a8703fba49ac@ec2-54-163-226-238.compute-1.amazonaws.com:5432/d1p54ufr7m889m", {
+  host: process.env.DB_HOST || "ec2-54-163-226-238.compute-1.amazonaws.com",
+  dialect: 'postgres',
   pool: {
     max: 10,
     min: 0,
     acquire: 30000,
     idle: 10000
+  },
+  dialectOptions: {
+    ssl: true
   }
 })
 

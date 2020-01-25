@@ -66,7 +66,7 @@ module.exports = {
             let offset = limit * (page - 1);
             const userId = req.params.userId;
 
-            let followedUsers = await Alias.findAll( { attributes: ['aliasId'], where: { aliasId: userId, followRequested: { [Op.ne]: 1} }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
+            let followedUsers = await Alias.findAll( { attributes: ['aliasId'], where: { aliasId: userId, followRequested: { [Op.ne]: true} }, limit: limit, offset: offset, include: [ {model: User, attributes: { exclude: ['password']}} ] });
             for (const user of followedUsers) {
                 const status = await Alias.findOne( { attributes: ['id', 'followRequested'], where: { userId: userId, aliasId: user.user.id } } );
                 user.user.setDataValue('status', status)
@@ -88,7 +88,7 @@ module.exports = {
             const userId = req.params.userId;
 
             // select following user only
-            let followingUsers = await Alias.findAll( { attributes: ['aliasId'], where: { userId: userId, followRequested: { [Op.ne]: 1} } });
+            let followingUsers = await Alias.findAll( { attributes: ['aliasId'], where: { userId: userId, followRequested: { [Op.ne]: true} } });
             let aliasIds = [];
             followingUsers.forEach(element => {
                 aliasIds.push(element.aliasId)
@@ -171,7 +171,7 @@ module.exports = {
         try {
             const userId = req.params.userId;
             let limit = 3;
-            let suggestions = await User.findAll({ order: [ Sequelize.fn( 'RAND' )], limit: limit, where: { id: { [Op.ne]: userId}}});
+            let suggestions = await User.findAll({ order: Sequelize.literal('random()'), limit: limit, where: { id: { [Op.ne]: userId}}});
             let tempSuggestion = suggestions.slice();
             for (let index = 0; index < tempSuggestion.length; index++) {
                 const follow = await Alias.findOne({
@@ -205,6 +205,21 @@ module.exports = {
             })
         }
     },
+
+    addPushSubscriber: async (req, res) => {        
+        try {
+            const userId = req.params.userId;
+            const sub = JSON.stringify(req.body.sub);
+            await User.update({
+                notification_subs: sub
+            }, { where: {id: userId} })
+            res.status(200).json(userId);
+        } catch (error) {
+            res.status(500).json({
+                message: error
+            })
+        }
+    }
 }
 
 function userDTO(user){

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9eb50edc-855c-46a8-ac63-22a9b34949ba",
+		"_postman_id": "1303f2e3-97e0-4cfb-96e1-94e458dfcfb6",
 		"name": "ngInsta",
 		"description": "An API Collection for ngInsta.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -61,15 +61,13 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"email\": \"bistaanup77@gmail.com\",\n\t\"password\": \"admin\"\t\n}"
+									"raw": "{\n\t\"email\": \"admin-dev@gmail.com\",\n\t\"password\": \"admin-dev\"\t\n}"
 								},
 								"url": {
-									"raw": "http://localhost:3000/auth/signIn",
-									"protocol": "http",
+									"raw": "{{url}}/auth/signIn",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
-									"port": "3000",
 									"path": [
 										"auth",
 										"signIn"
@@ -87,215 +85,211 @@
 			"name": "Posts",
 			"item": [
 				{
-					"name": "GET",
-					"item": [
-						{
-							"name": "getAllPosts",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									},
-									{
-										"key": "Authorization",
-										"value": "{{token}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://localhost:3000/posts/timeline/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/page/1",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "3000",
-									"path": [
-										"posts",
-										"timeline",
-										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
-										"page",
-										"1"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "getExplorePosts",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://localhost:3000/posts/explore/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/1",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "3000",
-									"path": [
-										"posts",
-										"explore",
-										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
-										"1"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "getPostById",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									},
-									{
-										"key": "Authorization",
-										"value": "{{token}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://localhost:3000/posts/969d94c9-69a5-4757-807a-1e57f6e516e1/page/1?profile=false",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "3000",
-									"path": [
-										"posts",
-										"969d94c9-69a5-4757-807a-1e57f6e516e1",
-										"page",
-										"1"
-									],
-									"query": [
-										{
-											"key": "profile",
-											"value": "false"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "getPostByPostId",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://localhost:3000/posts/71f901fe-e21e-40bd-a9e8-cd04beab188f",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "3000",
-									"path": [
-										"posts",
-										"71f901fe-e21e-40bd-a9e8-cd04beab188f"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "getImage",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://localhost:3000/posts/image/uploads/posts/94be1f24-fe88-4171-8647-aeae875161e7-1561601031308.jpg?",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "3000",
-									"path": [
-										"posts",
-										"image",
-										"uploads",
-										"posts",
-										"94be1f24-fe88-4171-8647-aeae875161e7-1561601031308.jpg"
-									],
-									"query": [
-										{
-											"key": "profile",
-											"value": "true",
-											"disabled": true
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"_postman_isSubFolder": true
-				},
-				{
 					"name": "POST",
 					"item": [
+						{
+							"name": "GET",
+							"item": [
+								{
+									"name": "getAllPosts",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Authorization",
+												"value": "{{token}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/posts/timeline/a99702a2-ae54-4545-bc99-631a69decdef/page/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"posts",
+												"timeline",
+												"a99702a2-ae54-4545-bc99-631a69decdef",
+												"page",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getExplorePosts",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "{{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/posts/explore/a99702a2-ae54-4545-bc99-631a69decdef/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"posts",
+												"explore",
+												"a99702a2-ae54-4545-bc99-631a69decdef",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPostById",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Authorization",
+												"value": "{{token}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "http://localhost:3000/posts/969d94c9-69a5-4757-807a-1e57f6e516e1/page/1?profile=false",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "3000",
+											"path": [
+												"posts",
+												"969d94c9-69a5-4757-807a-1e57f6e516e1",
+												"page",
+												"1"
+											],
+											"query": [
+												{
+													"key": "profile",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPostByPostId",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "{{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "http://localhost:3000/posts/71f901fe-e21e-40bd-a9e8-cd04beab188f",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "3000",
+											"path": [
+												"posts",
+												"71f901fe-e21e-40bd-a9e8-cd04beab188f"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getImage",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "{{token}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "http://localhost:3000/posts/image/uploads/posts/94be1f24-fe88-4171-8647-aeae875161e7-1561601031308.jpg?",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "3000",
+											"path": [
+												"posts",
+												"image",
+												"uploads",
+												"posts",
+												"94be1f24-fe88-4171-8647-aeae875161e7-1561601031308.jpg"
+											],
+											"query": [
+												{
+													"key": "profile",
+													"value": "true",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
 						{
 							"name": "addNewPost",
 							"request": {
@@ -564,15 +558,13 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"userId\": \"969d94c9-69a5-4757-807a-1e57f6e516e1\",\n\t\"postId\": \"c2d2706d-f6c5-4c9d-b410-ebfb7daad4ec\"\n}"
+									"raw": "{\n\t\"userId\": \"a99702a2-ae54-4545-bc99-631a69decdef\",\n\t\"postId\": \"e090b95e-cb2e-46f6-aff3-8e5862f6bc0e\"\n}"
 								},
 								"url": {
-									"raw": "http://localhost:3000/posts/likes",
-									"protocol": "http",
+									"raw": "{{url}}/posts/likes",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
-									"port": "3000",
 									"path": [
 										"posts",
 										"likes"
@@ -830,16 +822,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:3000/user/profile/8d4fdc8f-d393-498b-a078-08fc304c6c9c",
-									"protocol": "http",
+									"raw": "{{url}}/user/profile/dcabeb56-eeb1-4eab-8747-ad75f2689b5a",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
-									"port": "3000",
 									"path": [
 										"user",
 										"profile",
-										"8d4fdc8f-d393-498b-a078-08fc304c6c9c"
+										"dcabeb56-eeb1-4eab-8747-ad75f2689b5a"
 									]
 								}
 							},
@@ -941,16 +931,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:3000/user/profile/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/followers/1",
-									"protocol": "http",
+									"raw": "{{url}}/user/profile/a99702a2-ae54-4545-bc99-631a69decdef/followers/1",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
-									"port": "3000",
 									"path": [
 										"user",
 										"profile",
-										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
+										"a99702a2-ae54-4545-bc99-631a69decdef",
 										"followers",
 										"1"
 									]
@@ -1058,17 +1046,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost:3000/user/suggestions/1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3/",
-									"protocol": "http",
+									"raw": "{{url}}/user/suggestions/a99702a2-ae54-4545-bc99-631a69decdef",
 									"host": [
-										"localhost"
+										"{{url}}"
 									],
-									"port": "3000",
 									"path": [
 										"user",
 										"suggestions",
-										"1a4f5acb-9d21-4723-bfb0-fe2eea84c9d3",
-										""
+										"a99702a2-ae54-4545-bc99-631a69decdef"
 									]
 								}
 							},
@@ -1238,7 +1223,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"userId\": \"969d94c9-69a5-4757-807a-1e57f6e516e1\",\n    \"aliasId\": \"8d4fdc8f-d393-498b-a078-08fc304c6c9c\"\n}"
+									"raw": "{\n    \"userId\": \"dcabeb56-eeb1-4eab-8747-ad75f2689b5a\",\n    \"aliasId\": \"a99702a2-ae54-4545-bc99-631a69decdef\"\n}"
 								},
 								"url": {
 									"raw": "{{url}}/alias/follow",
@@ -1419,6 +1404,56 @@
 								}
 							},
 							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Push Notification",
+					"item": [
+						{
+							"name": "POST",
+							"item": [
+								{
+									"name": "Add notification subscriber",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Authorization",
+												"value": "{{token}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"sub\": { \n\t\t\"endpoint\": \"https://fcm.googleapis.com/fcm/send/cbx2QC6AGbY:APA91bEjTzUxaBU7j-YN7ReiXV-MD-bmk2pGsp9ZVq4Jj0yuBOhFRrUS9pjz5FMnIvUenVqNpALTh5Hng7HRQpcUNQMFblTLTF7aw-yu1dGqhBOJ-U3IBfnw3hz9hq-TJ4K5f9fHLvjY\",\n\t\t\"expirationTime\": null,\n\t\"keys\": {\n    \"p256dh\": \"BOXYnlKnMkzlMc6xlIjD8OmqVh-YqswZdut2M7zoAspl1UkFeQgSLYZ7eKqKcx6xMsGK7aAguQbcG9FMmlDrDIA=\",\n    \"auth\": \"if-YFywyb4g-bFB1hO9WMw==\"\n\t }\n\t}\n}"
+										},
+										"url": {
+											"raw": "{{url}}/user/addPushSubscriber/dcabeb56-eeb1-4eab-8747-ad75f2689b5a",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"user",
+												"addPushSubscriber",
+												"dcabeb56-eeb1-4eab-8747-ad75f2689b5a"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
 						}
 					],
 					"_postman_isSubFolder": true

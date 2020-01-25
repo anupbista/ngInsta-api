@@ -1,0 +1,845 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 11.5 (Ubuntu 11.5-1.pgdg16.04+1)
+-- Dumped by pg_dump version 11.5 (Ubuntu 11.5-0ubuntu0.19.04.1)
+
+-- Started on 2019-08-18 00:05:15 +0545
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 2 (class 3079 OID 22556735)
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- TOC entry 3983 (class 0 OID 0)
+-- Dependencies: 2
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- TOC entry 3 (class 3079 OID 22556941)
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- TOC entry 3984 (class 0 OID 0)
+-- Dependencies: 3
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
+--
+-- TOC entry 212 (class 1255 OID 22556323)
+-- Name: addfollowstatus(uuid, uuid); Type: PROCEDURE; Schema: public; Owner: -
+--
+
+CREATE PROCEDURE public.addfollowstatus(uuid, uuid)
+    LANGUAGE plpgsql
+    AS $_$
+BEGIN
+    update users set following = following +1 where id = $1;
+    update users set followers = followers +1 where id = $2;
+END;
+$_$;
+
+
+--
+-- TOC entry 206 (class 1255 OID 22555477)
+-- Name: comment_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.comment_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+   update posts set "commentsNo" = "commentsNo" -1 where id = old."postId";
+     DELETE FROM notifications where "userId" = old."userId" and "postId" = old."postId" and type = 'other-comment';
+     RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 275 (class 1255 OID 22555478)
+-- Name: new_comment_added(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.new_comment_added() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+declare uid uuid;
+BEGIN
+
+   
+	update posts set "commentsNo" = "commentsNo" +1 where id = NEW."postId";
+    
+    SELECT "userId" into uid from posts where posts.id = new."postId";
+    
+    IF (uid != new."userId" ) THEN
+    
+    INSERT INTO notifications(id, "userId", "aliasId", "postId", type, status) VALUES((uuid_generate_v4()), new."userId", uid , new."postId", 'other-comment', false);
+    
+    END IF;
+    RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 207 (class 1255 OID 22555479)
+-- Name: new_post_added(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.new_post_added() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+update users set "noOfPosts" = "noOfPosts" +1 where id = NEW."userId";
+RETURN NULL;
+END
+
+$$;
+
+
+--
+-- TOC entry 208 (class 1255 OID 22555480)
+-- Name: new_post_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.new_post_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+update users set "noOfPosts" = "noOfPosts" -1 where id = OLD."userId";
+RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 276 (class 1255 OID 22555481)
+-- Name: post_liked(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.post_liked() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+declare id uuid;
+BEGIN
+ SELECT "userId" into id from posts where posts.id = new."postId";
+    	
+	update posts set "likesNo" = "likesNo" +1 where posts.id = new."postId";
+    IF (id != new."userId" ) THEN
+   	 INSERT INTO notifications(id, "userId", "aliasId", "postId", type, status) VALUES((uuid_generate_v4()), new."userId", id , new."postId", 'other-like', false);
+	END IF;
+   RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 209 (class 1255 OID 22555482)
+-- Name: post_unliked(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.post_unliked() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+update posts set "likesNo" = "likesNo" -1 where id = old."postId";
+    
+    DELETE FROM notifications where "userId" = old."userId" and "postId" = old."postId" and type = 'other-like';
+    RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 277 (class 1255 OID 22559677)
+-- Name: removefollowstatus(uuid, uuid, boolean); Type: PROCEDURE; Schema: public; Owner: -
+--
+
+CREATE PROCEDURE public.removefollowstatus(uuid, uuid, boolean)
+    LANGUAGE plpgsql
+    AS $_$
+BEGIN
+    IF $3 = false THEN
+	update users set following = following -1 where id = $1;
+    update users set followers = followers -1 where id = $2;
+    END IF;
+END;
+$_$;
+
+
+--
+-- TOC entry 211 (class 1255 OID 22556330)
+-- Name: removefollowstatus(uuid, uuid, smallint); Type: PROCEDURE; Schema: public; Owner: -
+--
+
+CREATE PROCEDURE public.removefollowstatus(uuid, uuid, smallint)
+    LANGUAGE plpgsql
+    AS $_$
+BEGIN
+    IF $3 = 0 THEN
+	update users set following = following -1 where id = $1;
+    update users set followers = followers -1 where id = $2;
+    END IF;
+    COMMIT;
+END;
+$_$;
+
+
+--
+-- TOC entry 272 (class 1255 OID 22555484)
+-- Name: user_follow_insert(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.user_follow_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF (NEW."followRequested" IS NOT NULL AND NEW."followRequested" = false) THEN
+		
+		CALL addFollowStatus(new."userId", new."aliasId");
+	
+		INSERT INTO notifications(id, "userId", "aliasId", "postId", type, status) VALUES( (uuid_generate_v4()), new."userId", new."aliasId", null, 'other-userfollowed', false);
+    
+    ELSE
+    
+    	INSERT INTO notifications(id, "userId", "aliasId", "postId", type, status) VALUES((uuid_generate_v4()), new."userId", new."aliasId" , null, 'followrequest', false);
+	
+    END IF;
+    RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 273 (class 1255 OID 22555485)
+-- Name: user_follow_update(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.user_follow_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF (NEW."followRequested" IS NOT NULL AND NEW."followRequested" = false) THEN
+            CALL addFollowStatus(new."userId", new."aliasId");
+			DELETE FROM notifications where "userId" = new."userId" and "aliasId" = new."aliasId" and type = 'followrequest';
+            INSERT INTO notifications(id, "userId", "aliasId", "postId", type, status) VALUES((uuid_generate_v4()), new."aliasId", new."userId" , null, 'other-followaccepted', false);
+      END IF;
+      RETURN NULL;
+END
+$$;
+
+
+--
+-- TOC entry 238 (class 1255 OID 22555486)
+-- Name: user_followed_insert(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.user_followed_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (NEW.followRequested IS NOT NULL AND NEW.followRequested = false) THEN
+		
+		CALL addFollowStatus(new.userId, new.aliasId);
+	
+		INSERT INTO notifications(id, userId, aliasId, postId, type, status) VALUES( (uuid_generate_v4()), new.userId, new.aliasId, null, 'other-userfollowed', false);
+    
+    ELSE
+    
+    INSERT INTO notifications(id, userId, aliasId, postId, type, status) VALUES((uuid_generate_v4()), new.userId, new.aliasId , null, 'followrequest', false);
+	
+    END IF;
+END
+$$;
+
+
+--
+-- TOC entry 274 (class 1255 OID 22555487)
+-- Name: user_followed_update(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.user_followed_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (NEW.followRequested IS NOT NULL AND NEW.followRequested = false) THEN
+            CALL addFollowStatus(new.userId, new.aliasId);
+			DELETE FROM notifications where userId = new.userId and aliasId = new.aliasId and type = 'followrequest';
+            INSERT INTO notifications(id, userId, aliasId, postId, type, status) VALUES((uuid_generate_v4()), new.aliasId, new.userId , null, 'other-followaccepted', false);
+      END IF;
+END
+$$;
+
+
+--
+-- TOC entry 232 (class 1255 OID 22555488)
+-- Name: user_unfollowed(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.user_unfollowed() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+CALL removeFollowStatus(old."userId", old."aliasId", old."followRequested");
+DELETE FROM notifications where "userId" = old."userId" and "aliasId" = old."aliasId" and (type = 'other-userfollowed' or type = 'other-followaccepted' or type = 'followrequest');
+RETURN NULL;
+END
+$$;
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 198 (class 1259 OID 22555489)
+-- Name: aliases; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.aliases (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    "followRequested" boolean DEFAULT false NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "userId" uuid NOT NULL,
+    "aliasId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 199 (class 1259 OID 22555494)
+-- Name: comments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.comments (
+    id uuid DEFAULT 'aced5ec6-29d1-4cee-b974-10b4d147c6bf'::uuid NOT NULL,
+    "commentText" character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "userId" uuid NOT NULL,
+    "postId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 200 (class 1259 OID 22555498)
+-- Name: likes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.likes (
+    id uuid DEFAULT '8573bf65-49da-4b6e-a39f-e8546316ca2b'::uuid NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "userId" uuid NOT NULL,
+    "postId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 201 (class 1259 OID 22555502)
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.notifications (
+    id uuid NOT NULL,
+    status boolean DEFAULT false NOT NULL,
+    type character varying(255) NOT NULL,
+    "userId" uuid NOT NULL,
+    "aliasId" uuid NOT NULL,
+    "createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "postId" uuid
+);
+
+
+--
+-- TOC entry 202 (class 1259 OID 22555508)
+-- Name: posts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.posts (
+    id uuid DEFAULT '335ccb81-6b36-475b-bc20-a4bd30f4a5e1'::uuid NOT NULL,
+    latitude double precision,
+    longitude double precision,
+    "postImage" character varying(255) NOT NULL,
+    location character varying(255),
+    caption character varying(255),
+    "likesNo" integer DEFAULT 0,
+    "commentsNo" integer DEFAULT 0,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "userId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 203 (class 1259 OID 22555517)
+-- Name: saveposts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.saveposts (
+    id uuid DEFAULT '42b5afab-8363-4070-87d0-ce7b9cd5dcc2'::uuid NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "userId" uuid NOT NULL,
+    "postId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 204 (class 1259 OID 22555521)
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id uuid DEFAULT '99db5edd-c276-41f9-8b62-d4b0c61d06a1'::uuid NOT NULL,
+    username character varying(255) NOT NULL,
+    "displayName" character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    "userImage" character varying(255) DEFAULT 'uploads/profile/default-user.png'::character varying NOT NULL,
+    "privateProfile" boolean DEFAULT false NOT NULL,
+    followers integer DEFAULT 0,
+    following integer DEFAULT 0,
+    "noOfPosts" integer DEFAULT 0,
+    bio character varying(255),
+    website character varying(255),
+    "phoneNumber" character varying(255),
+    gender character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    notification_subs character varying
+);
+
+
+--
+-- TOC entry 205 (class 1259 OID 22555533)
+-- Name: usertokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.usertokens (
+    id uuid DEFAULT '64109474-3ab4-4beb-9ce3-817de543fb6c'::uuid NOT NULL,
+    token character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "userId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 3968 (class 0 OID 22555489)
+-- Dependencies: 198
+-- Data for Name: aliases; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.aliases (id, "followRequested", "createdAt", "updatedAt", "userId", "aliasId") VALUES ('67413bdc-c581-450f-828d-37b59fff6f67', false, '2019-08-17 06:51:59.723+00', '2019-08-17 06:51:59.723+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.aliases (id, "followRequested", "createdAt", "updatedAt", "userId", "aliasId") VALUES ('a500dc09-1bf9-44a8-b5bb-8791f0ed0d50', false, '2019-08-17 06:52:46.253+00', '2019-08-17 06:52:46.253+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a', '92acbcfb-9f90-4550-a9eb-83947d77a8af');
+INSERT INTO public.aliases (id, "followRequested", "createdAt", "updatedAt", "userId", "aliasId") VALUES ('5701a1aa-3d20-4924-b62a-f1e44e19ad6a', false, '2019-08-17 07:56:17.236+00', '2019-08-17 07:56:17.236+00', 'a99702a2-ae54-4545-bc99-631a69decdef', '92acbcfb-9f90-4550-a9eb-83947d77a8af');
+INSERT INTO public.aliases (id, "followRequested", "createdAt", "updatedAt", "userId", "aliasId") VALUES ('ae598757-a32f-4c02-9cab-7c3b1ec6a232', false, '2019-08-17 09:09:47.545+00', '2019-08-17 09:09:47.545+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a', '2219fc56-f4a2-4303-a088-d0b2187059bf');
+INSERT INTO public.aliases (id, "followRequested", "createdAt", "updatedAt", "userId", "aliasId") VALUES ('2e5ec879-9d5a-48dc-ae4c-4d41f0c636be', false, '2019-08-17 14:40:24.769+00', '2019-08-17 14:40:24.769+00', 'a99702a2-ae54-4545-bc99-631a69decdef', '2219fc56-f4a2-4303-a088-d0b2187059bf');
+
+
+--
+-- TOC entry 3969 (class 0 OID 22555494)
+-- Dependencies: 199
+-- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- TOC entry 3970 (class 0 OID 22555498)
+-- Dependencies: 200
+-- Data for Name: likes; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- TOC entry 3971 (class 0 OID 22555502)
+-- Dependencies: 201
+-- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.notifications (id, status, type, "userId", "aliasId", "createdAt", "updatedAt", "postId") VALUES ('b6081faa-5e5e-4e86-a8f5-631d26c765f1', true, 'other-userfollowed', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a', 'a99702a2-ae54-4545-bc99-631a69decdef', '2019-08-17 06:52:00.165188+00', '2019-08-17 07:32:04.380023+00', NULL);
+INSERT INTO public.notifications (id, status, type, "userId", "aliasId", "createdAt", "updatedAt", "postId") VALUES ('8f793c70-7edd-4298-9214-da23d46836d7', true, 'other-userfollowed', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a', '92acbcfb-9f90-4550-a9eb-83947d77a8af', '2019-08-17 06:52:46.256706+00', '2019-08-17 08:34:49.390106+00', NULL);
+INSERT INTO public.notifications (id, status, type, "userId", "aliasId", "createdAt", "updatedAt", "postId") VALUES ('1da76511-801f-43c5-8923-1187dae6d306', true, 'other-userfollowed', 'a99702a2-ae54-4545-bc99-631a69decdef', '92acbcfb-9f90-4550-a9eb-83947d77a8af', '2019-08-17 07:56:17.240393+00', '2019-08-17 08:34:49.390106+00', NULL);
+INSERT INTO public.notifications (id, status, type, "userId", "aliasId", "createdAt", "updatedAt", "postId") VALUES ('8242006d-16c4-412f-b03e-b7b3767e6212', true, 'other-userfollowed', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a', '2219fc56-f4a2-4303-a088-d0b2187059bf', '2019-08-17 09:09:47.551126+00', '2019-08-17 09:10:32.799763+00', NULL);
+INSERT INTO public.notifications (id, status, type, "userId", "aliasId", "createdAt", "updatedAt", "postId") VALUES ('8024467e-4f83-4832-af8b-25108ec8e7eb', false, 'other-userfollowed', 'a99702a2-ae54-4545-bc99-631a69decdef', '2219fc56-f4a2-4303-a088-d0b2187059bf', '2019-08-17 14:40:24.771843+00', '2019-08-17 14:40:24.771843+00', NULL);
+
+
+--
+-- TOC entry 3972 (class 0 OID 22555508)
+-- Dependencies: 202
+-- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- TOC entry 3973 (class 0 OID 22555517)
+-- Dependencies: 203
+-- Data for Name: saveposts; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- TOC entry 3974 (class 0 OID 22555521)
+-- Dependencies: 204
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.users (id, username, "displayName", password, email, "userImage", "privateProfile", followers, following, "noOfPosts", bio, website, "phoneNumber", gender, "createdAt", "updatedAt", notification_subs) VALUES ('2219fc56-f4a2-4303-a088-d0b2187059bf', 'nikhilxnepal', 'Nikhil Nepal', '$2b$10$XCRyMPmWLiRZWUbu8zAvQ.GAfZCk6YNq6mZFAOIjdL1HT1JY4oA9.', 'nepalnikhil@hotmail.com', 'uploads/profile/default-user.png', false, 2, 0, 0, NULL, NULL, NULL, NULL, '2019-08-17 09:01:01.142+00', '2019-08-17 09:01:01.142+00', NULL);
+INSERT INTO public.users (id, username, "displayName", password, email, "userImage", "privateProfile", followers, following, "noOfPosts", bio, website, "phoneNumber", gender, "createdAt", "updatedAt", notification_subs) VALUES ('dcabeb56-eeb1-4eab-8747-ad75f2689b5a', 'admindev', 'Admin Dev', '$2b$10$AFFBnqkZsMt269PWuQ2l9uBIzXNrYF.H8hS6YnaOw/xTccr.RvWAO', 'admin-dev@gmail.com', 'uploads/profile/default-user.png', true, 0, 3, 0, 'I am ADMIN', '', NULL, NULL, '2019-08-16 14:54:20.289+00', '2019-08-17 14:49:26.122+00', '{"endpoint":"https://fcm.googleapis.com/fcm/send/cccFBSXrMwI:APA91bGdcBYCRufLDxpJ6pjcwCSJ-TPFsWdicq8ztMsSBOwMRneYICBn5Ki6wzL42k_f14jN5m9gYHXfHUs_WKSC4osCmL9JWVmIAU9-eRIpKTO9e8GQu0EDsaSKJ8LtvxjIkDKxrEjf","expirationTime":null,"keys":{"p256dh":"BJBnv4T3XKPMllZ4TwcGKqSHwtEoXtbhZeSMdOY6U_0PXYODNMHia85Qp9uhzT7UNSnyrGIxuIBhFpBRU9PxALE","auth":"UYwWsiKoMxuZob60xqntsg"}}');
+INSERT INTO public.users (id, username, "displayName", password, email, "userImage", "privateProfile", followers, following, "noOfPosts", bio, website, "phoneNumber", gender, "createdAt", "updatedAt", notification_subs) VALUES ('a99702a2-ae54-4545-bc99-631a69decdef', 'admin', 'Admin', '$2b$10$V3CpcLrvH0..pB/e92hnH.Fyu79m1IeIfqv.kOpnzoXBBZ33dJuWS', 'admin@gmail.com', 'uploads/profile/default-user.png', false, 1, 2, 0, NULL, NULL, NULL, NULL, '2019-08-17 02:51:55.617+00', '2019-08-17 07:55:32.571+00', NULL);
+INSERT INTO public.users (id, username, "displayName", password, email, "userImage", "privateProfile", followers, following, "noOfPosts", bio, website, "phoneNumber", gender, "createdAt", "updatedAt", notification_subs) VALUES ('92acbcfb-9f90-4550-a9eb-83947d77a8af', 'messi', 'Lional Messi', '$2b$10$6deUhHTndk2njR5b2H.20e0KXg8JdGe3SBGq78vpyAaCRMFUOFDMy', 'messi@gmail.com', 'uploads/profile/default-user.png', false, 2, 0, 0, NULL, NULL, NULL, NULL, '2019-08-17 06:28:24.607+00', '2019-08-17 06:28:24.607+00', NULL);
+
+
+--
+-- TOC entry 3975 (class 0 OID 22555533)
+-- Dependencies: 205
+-- Data for Name: usertokens; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('e3a30037-7f54-406a-940e-590514c559a8', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY1OTY3MjYwNDY5LCJleHAiOjE1NjYwNTM2NjA0Njl9.N2-zSEO6YWRLU3DyXGYwQ8IbaKtALKZSY0QopoLORVY', '2019-08-16 14:54:20.472+00', '2019-08-16 14:54:20.472+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('14ce6975-c3ab-4916-948a-610061286184', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY1OTcxOTM2MDQzLCJleHAiOjE1NjYwNTgzMzYwNDN9.H0gw0IH7UOVjM6eRIkfhW1Olb0-m3TyQCaskqdxv-mQ', '2019-08-16 16:12:16.048+00', '2019-08-16 16:12:16.048+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('64bb5662-f317-4ee7-8c62-fc169591f3b8', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDA4MDU0ODIwLCJleHAiOjE1NjYwOTQ0NTQ4MjB9.OuElLDcPEK6ao1GkrUMurP6UEqWjxq_rraRoTdFacIY', '2019-08-17 02:14:14.826+00', '2019-08-17 02:14:14.826+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('73de0196-1469-4d45-8d0d-70497600f9e8', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDA4ODQyNTcwLCJleHAiOjE1NjYwOTUyNDI1NzB9.bBnb_rvYjEX2Ax3owrxBbvetFlS2Qe3QiNmnpQ8oAiQ', '2019-08-17 02:27:22.571+00', '2019-08-17 02:27:22.571+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('13ac05b3-698e-48dd-8b78-25dacca70876', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDA5NzM3MzQyLCJleHAiOjE1NjYwOTYxMzczNDJ9.RHxDbAGRO-vIPApIb0Q4UnOrlDAAz7kHi_KyvnUg7xs', '2019-08-17 02:42:17.343+00', '2019-08-17 02:42:17.343+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('e30a28e5-bae8-44a9-824c-58af303733f5', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiOTJhY2JjZmItOWY5MC00NTUwLWE5ZWItODM5NDdkNzdhOGFmIiwiaWF0IjoxNTY2MDIzMzA1NTIzLCJleHAiOjE1NjYxMDk3MDU1MjN9.Q5kocUAxi0xh42pUtGk1WJpKKLZt2hH5dYz3Sqt6HK0', '2019-08-17 06:28:25.526+00', '2019-08-17 06:28:25.526+00', '92acbcfb-9f90-4550-a9eb-83947d77a8af');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('39627f81-ca3b-412a-aad8-08ef9dc1a10e', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDI5MjkzNzc1LCJleHAiOjE1NjYxMTU2OTM3NzV9.FRtplTtkt5yHO4Uju0eZ8Li8L_DblekmM4PvWdwNsZo', '2019-08-17 08:08:13.776+00', '2019-08-17 08:08:13.776+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('d3a0970a-56dc-4381-851f-b2b117d07a29', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDMxMzQyOTk5LCJleHAiOjE1NjYxMTc3NDI5OTl9.uP89fNoSXYyNDisu-jorgoJiQmdHCfMJaTLvDruO35o', '2019-08-17 08:42:22.999+00', '2019-08-17 08:42:22.999+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('b7d64575-74fe-4448-a778-9607c5b2aff2', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiMjIxOWZjNTYtZjRhMi00MzAzLWEwODgtZDBiMjE4NzA1OWJmIiwiaWF0IjoxNTY2MDMyNDYxMjU1LCJleHAiOjE1NjYxMTg4NjEyNTV9.wfiX3fcqRzcM46p2FYc8h_8UySPcDu_5O_YxIYHPsVo', '2019-08-17 09:01:01.256+00', '2019-08-17 09:01:01.256+00', '2219fc56-f4a2-4303-a088-d0b2187059bf');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('cca80a27-0b72-47d6-974d-38a2261aef98', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDQwNzQyODI2LCJleHAiOjE1NjYxMjcxNDI4MjZ9.yWPfa9YcGlAEdg13XupBMVJB6mAMVoIf50jg-1O4Yw8', '2019-08-17 11:19:02.829+00', '2019-08-17 11:19:02.829+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('74db0771-59e2-4f61-b3a2-add6db9baa85', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiYTk5NzAyYTItYWU1NC00NTQ1LWJjOTktNjMxYTY5ZGVjZGVmIiwiaWF0IjoxNTY2MDQxMzE0MDA3LCJleHAiOjE1NjYxMjc3MTQwMDd9.gqohqAAUPYCv3MAKOKAdTEIYM1WDwQX0gJyKPNk_6Cg', '2019-08-17 11:28:34.007+00', '2019-08-17 11:28:34.007+00', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('d250b1fa-88c7-4d2e-a340-12e7d283f660', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDQyMzI5NzY2LCJleHAiOjE1NjYxMjg3Mjk3NjZ9.5Al_YNeP1akQ0K38jnRUbBrkBc3LDdK-uBfqLLRm-wM', '2019-08-17 11:45:29.771+00', '2019-08-17 11:45:29.771+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('89144700-9ab7-43a6-95eb-94a6223d4521', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDQzOTIxNzI3LCJleHAiOjE1NjYxMzAzMjE3Mjd9.-CAVqrjYteLmge516Zqaz0Xw0yBVSsuSlsfCttQ16mc', '2019-08-17 12:12:01.731+00', '2019-08-17 12:12:01.731+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('37b10e13-ac5e-41b4-b827-8d9f3b2cab89', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDQ3Mjk0MzY2LCJleHAiOjE1NjYxMzM2OTQzNjZ9.RWNRHunV32yZBL20GwqLzz66WiDB1X2jH1wgm-cbRqM', '2019-08-17 13:08:14.373+00', '2019-08-17 13:08:14.373+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('cd45a452-e4ee-4570-8c81-2c966127961f', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiYTk5NzAyYTItYWU1NC00NTQ1LWJjOTktNjMxYTY5ZGVjZGVmIiwiaWF0IjoxNTY2MDQ3MzcxOTgxLCJleHAiOjE1NjYxMzM3NzE5ODF9.m4gAAUVsg1VDbuVsqux-rvzBWo1SrvfxtkniXj7i7F8', '2019-08-17 13:09:31.983+00', '2019-08-17 13:09:31.983+00', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('e8b40c54-62e9-4a6b-be05-b88874c6b3e2', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiYTk5NzAyYTItYWU1NC00NTQ1LWJjOTktNjMxYTY5ZGVjZGVmIiwiaWF0IjoxNTY2MDQ4MjQ3NjIzLCJleHAiOjE1NjYxMzQ2NDc2MjN9.uYl_AUywedZvZu47CnQB6VjO6NwAqDG8PrrEE-LHGqQ', '2019-08-17 13:24:07.627+00', '2019-08-17 13:24:07.627+00', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('7ab4ec2b-a3d6-420e-9885-8b54be4efa38', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDQ5NjcxODQwLCJleHAiOjE1NjYxMzYwNzE4NDB9.12zDk-wN-MPbwqZe9OpQidrW3dUOkJ1uHhxmYQ9U5bQ', '2019-08-17 13:47:51.846+00', '2019-08-17 13:47:51.846+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('63f765af-bbaa-4989-b5c2-70520d3b9bc3', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiYTk5NzAyYTItYWU1NC00NTQ1LWJjOTktNjMxYTY5ZGVjZGVmIiwiaWF0IjoxNTY2MDQ5NzE0MzYzLCJleHAiOjE1NjYxMzYxMTQzNjN9.R_c05LeZlngMr6ki4Bi8aWMvbFMEfTSbjp49H6j9FdQ', '2019-08-17 13:48:34.364+00', '2019-08-17 13:48:34.364+00', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('a357bb6b-7fea-46f6-a60d-dac0c54911a2', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiYTk5NzAyYTItYWU1NC00NTQ1LWJjOTktNjMxYTY5ZGVjZGVmIiwiaWF0IjoxNTY2MDUxMTY3NjIxLCJleHAiOjE1NjYxMzc1Njc2MjF9.dL9RFL0fRsNLWIUNlxriGxv_f0s1rzD3PxVtpBv6uCs', '2019-08-17 14:12:47.626+00', '2019-08-17 14:12:47.626+00', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('9458fe74-5def-4d16-91e8-0796409cac95', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiYTk5NzAyYTItYWU1NC00NTQ1LWJjOTktNjMxYTY5ZGVjZGVmIiwiaWF0IjoxNTY2MDUxNTkwMTkzLCJleHAiOjE1NjYxMzc5OTAxOTN9.q1vFH-8oj9_Q57ra9Vjv1Q_r3KW8u3ru18hox7o9HLw', '2019-08-17 14:19:50.193+00', '2019-08-17 14:19:50.193+00', 'a99702a2-ae54-4545-bc99-631a69decdef');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('06475b21-87ac-4ebe-8250-4733ea8f96de', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDUxOTA1MjI0LCJleHAiOjE1NjYxMzgzMDUyMjR9.waqPSgYjXrveuLi51ie3-xbGE1z2IpB7VuCyEoGjApU', '2019-08-17 14:25:05.225+00', '2019-08-17 14:25:05.225+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+INSERT INTO public.usertokens (id, token, "createdAt", "updatedAt", "userId") VALUES ('aef240c5-a3dc-4196-a959-7962add173e1', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJuZ0luc3RhIiwic3ViIjoiZGNhYmViNTYtZWViMS00ZWFiLTg3NDctYWQ3NWYyNjg5YjVhIiwiaWF0IjoxNTY2MDUzMzk4NTE1LCJleHAiOjE1NjYxMzk3OTg1MTV9.2GSFORYNlTTnsWaH1CivdUYDu83Y5gpbBlVhxlu4M58', '2019-08-17 14:49:58.516+00', '2019-08-17 14:49:58.516+00', 'dcabeb56-eeb1-4eab-8747-ad75f2689b5a');
+
+
+--
+-- TOC entry 3810 (class 2606 OID 22555538)
+-- Name: aliases aliases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.aliases
+    ADD CONSTRAINT aliases_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3812 (class 2606 OID 22555540)
+-- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT comments_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3814 (class 2606 OID 22555542)
+-- Name: likes likes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT likes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3816 (class 2606 OID 22555544)
+-- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3818 (class 2606 OID 22555546)
+-- Name: posts posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3820 (class 2606 OID 22555548)
+-- Name: saveposts saveposts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.saveposts
+    ADD CONSTRAINT saveposts_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3822 (class 2606 OID 22555550)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3824 (class 2606 OID 22555552)
+-- Name: usertokens usertokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.usertokens
+    ADD CONSTRAINT usertokens_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3841 (class 2620 OID 22555553)
+-- Name: comments comment_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER comment_deleted AFTER DELETE ON public.comments FOR EACH ROW EXECUTE PROCEDURE public.comment_deleted();
+
+
+--
+-- TOC entry 3842 (class 2620 OID 22555554)
+-- Name: comments new_comment_added; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER new_comment_added AFTER INSERT ON public.comments FOR EACH ROW EXECUTE PROCEDURE public.new_comment_added();
+
+
+--
+-- TOC entry 3845 (class 2620 OID 22555555)
+-- Name: posts new_post_added; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER new_post_added AFTER INSERT ON public.posts FOR EACH ROW EXECUTE PROCEDURE public.new_post_added();
+
+
+--
+-- TOC entry 3846 (class 2620 OID 22555556)
+-- Name: posts new_post_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER new_post_deleted AFTER DELETE ON public.posts FOR EACH ROW EXECUTE PROCEDURE public.new_post_deleted();
+
+
+--
+-- TOC entry 3843 (class 2620 OID 22555557)
+-- Name: likes post_liked; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER post_liked AFTER INSERT ON public.likes FOR EACH ROW EXECUTE PROCEDURE public.post_liked();
+
+
+--
+-- TOC entry 3844 (class 2620 OID 22555558)
+-- Name: likes post_unliked; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER post_unliked AFTER DELETE ON public.likes FOR EACH ROW EXECUTE PROCEDURE public.post_unliked();
+
+
+--
+-- TOC entry 3838 (class 2620 OID 22555559)
+-- Name: aliases user_follow_insert; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER user_follow_insert AFTER INSERT ON public.aliases FOR EACH ROW EXECUTE PROCEDURE public.user_follow_insert();
+
+
+--
+-- TOC entry 3839 (class 2620 OID 22555560)
+-- Name: aliases user_follow_update; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER user_follow_update AFTER UPDATE ON public.aliases FOR EACH ROW EXECUTE PROCEDURE public.user_follow_update();
+
+
+--
+-- TOC entry 3840 (class 2620 OID 22555561)
+-- Name: aliases user_unfollowed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER user_unfollowed AFTER DELETE ON public.aliases FOR EACH ROW EXECUTE PROCEDURE public.user_unfollowed();
+
+
+--
+-- TOC entry 3825 (class 2606 OID 22555562)
+-- Name: aliases aliases_aliasId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.aliases
+    ADD CONSTRAINT "aliases_aliasId_fkey" FOREIGN KEY ("aliasId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3826 (class 2606 OID 22555567)
+-- Name: aliases aliases_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.aliases
+    ADD CONSTRAINT "aliases_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3828 (class 2606 OID 22560312)
+-- Name: comments comments_postId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT "comments_postId_fkey" FOREIGN KEY ("postId") REFERENCES public.posts(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3827 (class 2606 OID 22555577)
+-- Name: comments comments_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT "comments_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3829 (class 2606 OID 22555582)
+-- Name: likes likes_postId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT "likes_postId_fkey" FOREIGN KEY ("postId") REFERENCES public.posts(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3830 (class 2606 OID 22555587)
+-- Name: likes likes_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT "likes_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3831 (class 2606 OID 22555592)
+-- Name: notifications notifications_aliasId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT "notifications_aliasId_fkey" FOREIGN KEY ("aliasId") REFERENCES public.users(id);
+
+
+--
+-- TOC entry 3832 (class 2606 OID 22555597)
+-- Name: notifications notifications_postId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT "notifications_postId_fkey" FOREIGN KEY ("postId") REFERENCES public.posts(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3833 (class 2606 OID 22555602)
+-- Name: notifications notifications_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT "notifications_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3834 (class 2606 OID 22555607)
+-- Name: posts posts_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT "posts_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3835 (class 2606 OID 22555612)
+-- Name: saveposts saveposts_postId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.saveposts
+    ADD CONSTRAINT "saveposts_postId_fkey" FOREIGN KEY ("postId") REFERENCES public.posts(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3836 (class 2606 OID 22555617)
+-- Name: saveposts saveposts_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.saveposts
+    ADD CONSTRAINT "saveposts_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3837 (class 2606 OID 22555622)
+-- Name: usertokens usertokens_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.usertokens
+    ADD CONSTRAINT "usertokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3981 (class 0 OID 0)
+-- Dependencies: 5
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
+--
+
+REVOKE ALL ON SCHEMA public FROM postgres;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO pqowldxanqdxnu;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- TOC entry 3982 (class 0 OID 0)
+-- Dependencies: 684
+-- Name: LANGUAGE plpgsql; Type: ACL; Schema: -; Owner: -
+--
+
+GRANT ALL ON LANGUAGE plpgsql TO pqowldxanqdxnu;
+
+
+-- Completed on 2019-08-18 00:06:38 +0545
+
+--
+-- PostgreSQL database dump complete
+--
+
