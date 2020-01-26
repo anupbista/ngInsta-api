@@ -25,14 +25,41 @@ app.use('/posts', require('./routes/posts'));
 app.use('/alias', require('./routes/alias'));
 
 // Attach the socket to the http server
+let activeUsers = [];
 let server = http.createServer(app);
-socket.listen(server);
-let io = socket(server);
+let io = socket.listen(server);
 io.on('connection', socket => {
     console.log('Connection with socket');
 
+    socket.on('user-connect', (userId) => {
+        // push user to active users
+        socket.userId = userId;
+        activeUsers.push({
+            userId: userId,
+            socketId: socket.id
+        })
+    });
+
+    socket.on('user-disconnect', (userId) => {
+        // remove user to active users
+        activeUsers = [...activeUsers.filter( user => user.userId != userId)];
+    });
+
+    socket.on('disconnect', () => {
+        console.log(socket)
+         // remove user to active users
+         activeUsers = [...activeUsers.filter( user => user.userId != socket.userId)];
+         socket.removeAllListeners();
+    });
+
     socket.on('new-message', (data) => {
-        io.emit('new-message', {user: data.user, message: data.message})
+        let receiverUser = activeUsers.find( user => user.userId == data.receiver.id);
+        let senderUser = activeUsers.find( user => user.userId == data.sender.id);
+        console.log(receiverUser);
+        if(receiverUser && senderUser){
+            io.to(senderUser.socketId).emit('new-message', {user: data.sender, message: data.message}); 
+            io.to(receiverUser.socketId).emit('new-message', {user: data.sender, message: data.message}); 
+        }
     })
 
 })
