@@ -8,8 +8,8 @@ const UserTokenModel = require('../models/usertoken');
 const NotificationModel = require('../models/notification');
 const SavePostsModel = require('../models/saved');
 
-const sequelize = new Sequelize('ngInsta', 'admin-dev', 'admin-dev', {
-  host: 'localhost',
+const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.USERNAME, process.env.PASSWORD, {
+  host: process.env.HOST,
   dialect: 'mysql',
   pool: {
     max: 10,
