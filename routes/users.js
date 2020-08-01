@@ -7,12 +7,10 @@ const passportConfig = require('../helpers/passport');
 const UsersController = require('../controllers/users.js');
 const NotificationController = require('../controllers/notification');
 const passportJWT = passport.authenticate('jwt', {session: false});
-const { profileImageDir } = require('../config/config')
 
 let storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      // cb(null,  path.join(__dirname, profileImageDir));
-      cb(null, profileImageDir);
+      cb(null, process.env.profileImageDir);
     },
     filename: (req, file, cb) => {
         let ext = file.originalname.split('.');

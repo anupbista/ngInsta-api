@@ -1,5 +1,4 @@
 const JWT = require('jsonwebtoken');
-var config = require('../config/config');
 
 module.exports = {
 
@@ -8,7 +7,7 @@ module.exports = {
         if (!token)
           return res.status(403).send({ auth: false, message: 'No token provided.' });
           
-          JWT.verify(token, config.JWT_SECRET, (err, decoded) => {
+          JWT.verify(token, process.env.JWT_SECRET, (err, decoded) => {
           if (err)
           return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
             

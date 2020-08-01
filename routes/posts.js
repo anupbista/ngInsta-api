@@ -7,12 +7,10 @@ const PostsController = require('../controllers/posts.js');
 const CommentsController = require('../controllers/comments.js');
 const LikesController = require('../controllers/likes.js');
 const passportJWT = passport.authenticate('jwt', {session: false});
-const { postImageDir } = require('../config/config')
 
 let storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      // cb(null,  path.join(__dirname, postImageDir));
-      cb(null, postImageDir);
+      cb(null, process.env.postImageDir);
     },
     filename: (req, file, cb) => {
         let ext = file.originalname.split('.');

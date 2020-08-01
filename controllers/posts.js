@@ -1,7 +1,6 @@
 const { Post, Alias, User, Likes, Comment, SavedPosts, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op
 const path = require('path');
-const { postImageDir } = require('../config/config')
 
 module.exports = {
     getAllPosts: async (req, res) => {
@@ -126,17 +125,18 @@ module.exports = {
 
     savePostPicture: async (req, res) => {
         try {
-            console.log(req.file);
-            if(req.file){
+            if (req.file) {
                 const postId = req.params.postId;
-                const image = await Post.update({ postImage: req.file.path }, { where: {id: postId}})
-                res.status(200).json(image[0] === 1 ? true : false)
-            }else{
+                const image = await cloudinary.uploader.upload(req.file.path, { tags: 'post_image', folder: 'posts' })
+                await Post.update({ postImage: image.url }, { where: { id: postId } })
+                res.status(200).json({
+                    url: image.url
+                })
+            } else {
                 res.status(500).json({
                     message: "Uploading failed."
                 })
-            }
-            
+            }      
         } catch (error) {
             res.status(500).json({
                 message: error
@@ -145,7 +145,7 @@ module.exports = {
     },
 
     getImage: (req, res) => {
-        res.sendFile(path.join(__dirname +"../../"+postImageDir+"/"+req.params.id ));
+        res.sendFile(path.join(__dirname +"../../"+process.env.postImageDir+"/"+req.params.id ));
     },
 
     getAllSavedPostsByUserId: async (req, res) => {

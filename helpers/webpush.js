@@ -1,11 +1,10 @@
 const webpush = require('web-push');
-const { VAPID_KEYS } = require('../config/config');
 const { Alias, User } = require('../db/sequilize');
 
 webpush.setVapidDetails(
     'mailto:https://nginsta.netlify.com',
-    VAPID_KEYS.publicKey,
-    VAPID_KEYS.privateKey
+    process.env.VAPID_PUBLIC,
+    process.env.VAPID_PRIVATE
 );
 
  module.exports = {

@@ -1,7 +1,6 @@
 const JWT = require('jsonwebtoken');
 
 const { User, UserToken } = require('../db/sequilize')
-const { JWT_SECRET } = require('../config/config')
 
 signToken = user => {
     return JWT.sign({
@@ -9,7 +8,7 @@ signToken = user => {
         sub: user.id,
         iat: new Date().getTime(),
         exp: new Date().setDate( new Date().getDate() + 1 )
-    }, JWT_SECRET)
+    }, process.env.JWT_SECRET)
 }
 
 module.exports = {
