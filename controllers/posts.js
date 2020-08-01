@@ -1,6 +1,7 @@
 const { Post, Alias, User, Likes, Comment, SavedPosts, Sequelize } = require('../db/sequilize')
 const Op = Sequelize.Op
 const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
 
 module.exports = {
     getAllPosts: async (req, res) => {
