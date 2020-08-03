@@ -67,8 +67,8 @@ io.on('connection', socket => {
         // console.log(receiverUser);
         // console.log(senderUser)
         if(receiverUser && senderUser){
-            io.to(senderUser.socketId).emit('new-message', {user: data.sender, message: data.message}); 
-            io.to(receiverUser.socketId).emit('new-message', {user: data.sender, message: data.message}); 
+            io.to(senderUser.socketId).emit('new-message', {user: data.sender, message: data.message, receiverid: data.receiver.id}); 
+            io.to(receiverUser.socketId).emit('new-message', {user: data.sender, message: data.message, receiverid: data.receiver.id}); 
         }
     })
 
