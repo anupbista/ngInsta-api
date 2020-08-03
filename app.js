@@ -40,28 +40,32 @@ io.on('connection', socket => {
             socketId: socket.id
         })
         // io.emit("new-user-connect", userId);
-         socket.broadcast.emit('user-connect', userId);
+         io.emit('user-status', activeUsers);
     });
 
     socket.on('user-disconnect', (userId) => {
         // remove user to active users
         activeUsers = [...activeUsers.filter( user => user.userId != userId)];
-        socket.broadcast.emit('disconnect', userId);
+        socket.broadcast.emit('user-status',  activeUsers );
+    });
+
+    socket.on('user-status-request', (userId) => {
+        let r__user = activeUsers.find( user => user.userId == userId);
+        io.to(r__user.socketId).emit('user-status', activeUsers); 
     });
 
     socket.on('disconnect', () => {
-        console.log(socket)
          // remove user to active users
          activeUsers = [...activeUsers.filter( user => user.userId != socket.userId)];
-         socket.broadcast.emit('disconnect', socket.userId);
+         socket.broadcast.emit('user-status', activeUsers);
          socket.removeAllListeners();
     });
 
     socket.on('new-message', (data) => {
         let receiverUser = activeUsers.find( user => user.userId == data.receiver.id);
         let senderUser = activeUsers.find( user => user.userId == data.sender.id);
-        console.log(receiverUser);
-        console.log(senderUser)
+        // console.log(receiverUser);
+        // console.log(senderUser)
         if(receiverUser && senderUser){
             io.to(senderUser.socketId).emit('new-message', {user: data.sender, message: data.message}); 
             io.to(receiverUser.socketId).emit('new-message', {user: data.sender, message: data.message}); 
